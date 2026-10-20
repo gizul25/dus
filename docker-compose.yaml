@@ -1,0 +1,19 @@
+name: dus
+
+services:
+  database:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - 27017:27017
+  frontend:
+    build: dev
+    volumes:
+      - ./:/app
+    working_dir: /app/frontend
+    command: /bin/bash -c "pnpm run dev --host"
+    ports:
+      - 5173:5173
