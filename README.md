@@ -8,13 +8,15 @@ Constraints:
 # Launching dev server
 docker compose up --build
 # Press Ctrl+C to stop the server
+# Because frontend doesn't close gracefully yet, need to press Ctrl+C twice to exit.
 ```
 
 Relaunch `docker compose` if `docker-compose.yaml` or `Dockerfile`s were changed.
 
 Server URIs:
 - MongoDB: `mongodb://root:password@localhost:27017/`
-- Web server: http://localhost:5173/
+- Frontend: http://localhost:5173/
+- Backend: http://localhost:8000/
 
 # Debugging tools
 
@@ -26,6 +28,7 @@ docker ps
 
 # Enter a running container
 docker exec -it dus-frontend-1 /bin/bash
+docker exec -it dus-backend-1 /bin/bash
 ```
 
 If any commands in Docker complain about missing env vars, such as `SHELL`, inside the attached container run:

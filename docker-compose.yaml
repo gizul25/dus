@@ -14,6 +14,14 @@ services:
     volumes:
       - ./:/app
     working_dir: /app/frontend
-    command: /bin/bash -c "pnpm run dev --host"
+    command: ./dev.sh
     ports:
       - 5173:5173
+  backend:
+    build: dev
+    volumes:
+      - ./:/app
+    working_dir: /app/backend
+    command: ./dev.sh
+    ports:
+      - 8000:8000
