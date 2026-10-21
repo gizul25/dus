@@ -11,7 +11,7 @@ docker compose up --build
 # Because frontend doesn't close gracefully yet, need to press Ctrl+C twice to exit.
 ```
 
-Relaunch `docker compose` if `docker-compose.yaml` or `Dockerfile`s were changed.
+Relaunch `docker compose` if `docker-compose.yaml`, `nginx.conf`, `Dockerfile`s or other core infra files were changed. Changing Svelte in frontend and Python files in backend should automatically update them live with HMR (hot-module reloading). 
 
 Server URIs:
 - Nginx (w/ frontend + backend): http://localhost:8080/
@@ -20,6 +20,10 @@ Server URIs:
 - Backend: http://localhost:8000/
 
 # Debugging tools
+
+## Backend
+
+- `print` statements do not appear immediately in Docker logs, use `logger.info()` instead (see `ws/__init__.py`).
 
 ## Docker
 
