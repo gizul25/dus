@@ -14,8 +14,9 @@ docker compose up --build
 Relaunch `docker compose` if `docker-compose.yaml` or `Dockerfile`s were changed.
 
 Server URIs:
+- Nginx (w/ frontend + backend): http://localhost:8080/
 - MongoDB: `mongodb://root:password@localhost:27017/`
-- Frontend: http://localhost:5173/
+- Raw frontend: http://localhost:5173/
 - Backend: http://localhost:8000/
 
 # Debugging tools
