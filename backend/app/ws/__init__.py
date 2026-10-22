@@ -71,7 +71,7 @@ async def lifespan(app: FastAPI):
 
 async def process_server_messages():
     async for msg in consumer:
-        logger.info('server msg: {msg}')
+        logger.info(f'server msg: {msg}')
         
         connection_id = UUID(bytes=msg.key)
         value = msg.value.decode('utf-8')
