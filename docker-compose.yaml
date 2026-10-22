@@ -10,7 +10,7 @@ services:
     ports:
       - 27017:27017
   frontend:
-    build: dev
+    build: infra/dev
     volumes:
       - ./:/app
     working_dir: /app/frontend
@@ -18,16 +18,32 @@ services:
     ports:
       - 5173:5173
   backend:
-    build: dev
+    build: infra/dev
     volumes:
       - ./:/app
     working_dir: /app/backend
-    command: ./dev.sh
+    command: ./dev-backend.sh
     ports:
       - 8000:8000
+  ws:
+    build: infra/dev
+    volumes:
+      - ./:/app
+    working_dir: /app/backend
+    command: ./dev-ws.sh
+    ports:
+      - 7000:7000
   nginx:
     image: nginx
     volumes:
       - ./infra/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - 8080:8080
+  kafka:
+    build: infra/dev
+    volumes:
+      - ./:/app
+    command: ./infra/kafka/dev.sh
+    ports:
+      - 9092:9092
+
