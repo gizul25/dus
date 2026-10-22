@@ -7,4 +7,6 @@ set -e
 uv venv .venv-ws --allow-existing
 . ".venv-ws/bin/activate"
 
-exec uv run uvicorn app:ws_app --host 0.0.0.0 --port 7000 --reload --ws=websockets-sansio
+export PYTHONUNBUFFERED=1
+cd app/
+exec uv run uvicorn ws:ws_app --host 0.0.0.0 --port 7000 --reload --reload-dir=/app/backend/app/ws --ws=websockets-sansio
