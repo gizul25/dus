@@ -50,5 +50,8 @@
 	"imports": {
 		"#lib": "./src/lib/index.js",
 		"#lib/*": "./src/lib/*"
+	},
+	"dependencies": {
+		"@tanstack/svelte-table": "^9.3.1"
 	}
 }

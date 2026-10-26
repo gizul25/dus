@@ -12,4 +12,3 @@
 </svelte:head>
 
 {@render children()}
-<DemoLinks />

@@ -1,11 +1,10 @@
 <script lang="ts">
-	import * as Card from '#lib/components/ui/card/index.js';
 	import * as Tabs from '#lib/components/ui/tabs/index.js';
 	import DesksTab from '#lib/ui/admin/DesksTab.svelte';
 	import IssuesTab from '#lib/ui/admin/IssuesTab.svelte';
 	import MapTab from '#lib/ui/admin/MapTab.svelte';
 
-	import UsersTab from '#lib/ui/admin/UsersTab.svelte';
+	import UsersTab from '#lib/ui/admin/users/UsersTab.svelte';
 
 	const tabs = [
 		{
@@ -31,7 +30,7 @@
 	];
 </script>
 
-<Tabs.Root value="users" class="w-[400px]">
+<Tabs.Root value="users" class="w-full">
 	<Tabs.List variant="line">
 		{#each tabs as tab (tab.value)}
 			<Tabs.Trigger value={tab.value}>{tab.title}</Tabs.Trigger>
