@@ -1,13 +1,17 @@
 <script lang="ts" generics="TData extends RowData">
 	import { type ColumnDef, type RowData, createTable, FlexRender } from '@tanstack/svelte-table';
+	import ColumnsIcon from 'remixicon-svelte/icons/layout-column-line';
+	import SearchIcon from 'remixicon-svelte/icons/search-line';
 	import * as Table from '#lib/components/ui/table/index.js';
 	import { Input } from '#lib/components/ui/input/index.js';
 	import { features, type DataTableFeatures } from './data-table-features.js';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import * as DropdownMenu from '#lib/components/ui/dropdown-menu/index.js';
-	import * as Field from "#lib/components/ui/field/index.js";
-	import * as Pagination from "#lib/components/ui/pagination/index.js";
-	import * as Select from "#lib/components/ui/select/index.js";
+	import * as Field from '#lib/components/ui/field/index.js';
+	import * as Pagination from '#lib/components/ui/pagination/index.js';
+	import * as Select from '#lib/components/ui/select/index.js';
+	import * as InputGroup from "#lib/components/ui/input-group/index.js";
+
 
 	type DataTableProps<TData extends RowData> = {
 		columns: ColumnDef<DataTableFeatures, TData>[];
@@ -32,7 +36,7 @@
 	}
 
 	function setPageSize(newPageSize: number) {
-		table.setPageSize(newPageSize)
+		table.setPageSize(newPageSize);
 	}
 
 	function getPage() {
@@ -45,14 +49,18 @@
 </script>
 
 <div>
-	<div class="flex items-center gap-x-4 py-4">
-		<Input
-			placeholder="Filter emails..."
-			value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
-			onchange={(e) => table.getColumn('email')?.setFilterValue(e.currentTarget.value)}
-			oninput={(e) => table.getColumn('email')?.setFilterValue(e.currentTarget.value)}
-			class="max-w-sm"
-		/>
+	<div class="flex items-center gap-x-4 pb-4">
+		<InputGroup.Root class="max-w-sm">
+			<InputGroup.Input
+				placeholder="Filter emails..."
+				value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
+				onchange={(e) => table.getColumn('email')?.setFilterValue(e.currentTarget.value)}
+				oninput={(e) => table.getColumn('email')?.setFilterValue(e.currentTarget.value)}
+			/>
+			<InputGroup.Addon>
+				<SearchIcon />
+			</InputGroup.Addon>
+		</InputGroup.Root>
 		<Field.Field orientation="horizontal" class="ms-auto w-fit">
 			<Field.Label for="select-rows-per-page">Rows per page</Field.Label>
 			<Select.Root type="single" bind:value={getPageSize, setPageSize}>
@@ -71,7 +79,10 @@
 		<DropdownMenu.Root>
 			<DropdownMenu.Trigger>
 				{#snippet child({ props })}
-					<Button {...props} variant="outline">Columns</Button>
+					<Button {...props} variant="outline">
+						<ColumnsIcon data-icon="inline-start" />
+						Columns
+					</Button>
 				{/snippet}
 			</DropdownMenu.Trigger>
 			<DropdownMenu.Content align="end">
@@ -119,7 +130,6 @@
 		</Table.Root>
 	</div>
 	<div class="flex items-center justify-between space-x-2 py-4">
-		
 		<Pagination.Root
 			count={table.getRowCount()}
 			bind:page={getPage, setPage}

@@ -37,7 +37,7 @@
 		{/each}
 	</Tabs.List>
 	{#each tabs as tab (tab.value)}
-		<Tabs.Content value={tab.value}>
+		<Tabs.Content value={tab.value} class="p-4">
 			<tab.component />
 		</Tabs.Content>
 	{/each}
