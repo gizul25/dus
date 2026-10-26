@@ -1,34 +1,26 @@
 <script lang="ts">
 	import DataTable from './DataTable.svelte';
-	import { columns } from './columns.js';
+	import { columns, type User } from './columns.js';
 
-	type Payment = {
-		id: string;
-		amount: number;
-		status: 'pending' | 'processing' | 'success' | 'failed';
-		email: string;
-	};
-
-	export const data: Payment[] = [
+	export const data: User[] = [
 		{
 			id: '728ed52f',
-			amount: 100,
-			status: 'pending',
-			email: 'm@example.com'
+			firstName: 'Real',
+			lastName: 'Name',
+			email: 'rn@example.com'
 		},
 		{
 			id: '489e1d42',
-			amount: 125,
-			status: 'processing',
-			email: 'example@gmail.com'
+			firstName: 'Banger',
+			lastName: 'Lastname',
+			email: 'banger@gmail.com'
 		},
 		...[...Array(25).keys()].map((_) => ({
 			id: '489e1d42',
-			amount: 125,
-			status: 'processing',
-			email: 'example@gmail.com'
+			firstName: 'Purely',
+			lastName: 'Surely',
+			email: 'psurely@gmail.com'
 		}))
-		// ...
 	];
 </script>
 

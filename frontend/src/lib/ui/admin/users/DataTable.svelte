@@ -3,15 +3,13 @@
 	import ColumnsIcon from 'remixicon-svelte/icons/layout-column-line';
 	import SearchIcon from 'remixicon-svelte/icons/search-line';
 	import * as Table from '#lib/components/ui/table/index.js';
-	import { Input } from '#lib/components/ui/input/index.js';
 	import { features, type DataTableFeatures } from './data-table-features.js';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import * as DropdownMenu from '#lib/components/ui/dropdown-menu/index.js';
 	import * as Field from '#lib/components/ui/field/index.js';
 	import * as Pagination from '#lib/components/ui/pagination/index.js';
 	import * as Select from '#lib/components/ui/select/index.js';
-	import * as InputGroup from "#lib/components/ui/input-group/index.js";
-
+	import * as InputGroup from '#lib/components/ui/input-group/index.js';
 
 	type DataTableProps<TData extends RowData> = {
 		columns: ColumnDef<DataTableFeatures, TData>[];
@@ -24,6 +22,11 @@
 		features,
 		get data() {
 			return data;
+		},
+		defaultColumn: {
+			size: 200, // starting column size
+			minSize: 10, // enforced during column resizing
+			maxSize: 500 // enforced during column resizing
 		},
 		columns
 	});
@@ -49,6 +52,7 @@
 </script>
 
 <div>
+	<div style:width={`${102}px`} style:minWidth={`${102}px`}></div>
 	<div class="flex items-center gap-x-4 pb-4">
 		<InputGroup.Root class="max-w-sm">
 			<InputGroup.Input
@@ -103,7 +107,10 @@
 				{#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
 					<Table.Row>
 						{#each headerGroup.headers as header (header.id)}
-							<Table.Head colspan={header.colSpan}>
+							<Table.Head
+								colspan={header.colSpan}
+								style={`min-width:${header.column.columnDef.size}px;max-width:${header.column.columnDef.size}px`}
+							>
 								{#if !header.isPlaceholder}
 									<FlexRender {header} />
 								{/if}
@@ -116,7 +123,9 @@
 				{#each table.getRowModel().rows as row (row.id)}
 					<Table.Row data-state={row.getIsSelected() && 'selected'}>
 						{#each row.getVisibleCells() as cell (cell.id)}
-							<Table.Cell>
+							<Table.Cell
+								style={`min-width:${cell.column.columnDef.size}px;max-width:${cell.column.columnDef.size}px`}
+							>
 								<FlexRender {cell} />
 							</Table.Cell>
 						{/each}

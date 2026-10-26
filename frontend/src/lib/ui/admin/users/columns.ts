@@ -1,21 +1,17 @@
-import { createColumnHelper, renderSnippet, renderComponent } from "@tanstack/svelte-table";
-import { createRawSnippet } from "svelte";
+import { createColumnHelper, renderComponent } from "@tanstack/svelte-table";
 import type { DataTableFeatures } from "./data-table-features.js";
 import DataTableCheckbox from "./DataTableCheckbox.svelte";
 import DataTableEmailButton from "./DataTableEmailButton.svelte";
 import DataTableActions from "./DataTableActions.svelte";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export type Payment = {
+export type User = {
     id: string;
-    amount: number;
-    status: "pending" | "processing" | "success" | "failed";
+    firstName: string;
+    lastName: string;
     email: string;
 };
 
-// Use `accessor` for data columns and `display` for columns without one.
-const columnHelper = createColumnHelper<DataTableFeatures, Payment>();
+const columnHelper = createColumnHelper<DataTableFeatures, User>();
 
 export const columns = columnHelper.columns([
     columnHelper.display({
@@ -38,9 +34,13 @@ export const columns = columnHelper.columns([
             }),
         enableSorting: false,
         enableHiding: false,
+        size: 24
     }),
-    columnHelper.accessor("status", {
-        header: "Status",
+    columnHelper.accessor("firstName", {
+        header: "First name",
+    }),
+    columnHelper.accessor("lastName", {
+        header: "Last name",
     }),
     columnHelper.accessor("email", {
         header: ({ column }) =>
@@ -48,37 +48,9 @@ export const columns = columnHelper.columns([
                 onclick: column.getToggleSortingHandler(),
             }),
     }),
-    columnHelper.accessor("amount", {
-        header: () => {
-            const amountHeaderSnippet = createRawSnippet(() => ({
-                render: () => `<div class="text-end">Amount</div>`,
-            }));
-            return renderSnippet(amountHeaderSnippet);
-        },
-        cell: ({ row }) => {
-            const formatter = new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-            });
-
-            const amountCellSnippet = createRawSnippet<[{ amount: number }]>(
-                (getAmount) => {
-                    const { amount } = getAmount();
-                    const formatted = formatter.format(amount);
-                    return {
-                        render: () =>
-                            `<div class="text-end font-medium">${formatted}</div>`,
-                    };
-                }
-            );
-
-            return renderSnippet(amountCellSnippet, {
-                amount: row.original.amount,
-            });
-        },
-    }),
     columnHelper.display({
         id: "actions",
+        size: 50,
         cell: ({ row }) => {
             return renderComponent(DataTableActions, { id: row.original.id });
         },

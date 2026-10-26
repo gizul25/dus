@@ -30,7 +30,7 @@
 	];
 </script>
 
-<Tabs.Root value="users" class="w-full">
+<Tabs.Root value="users">
 	<Tabs.List variant="line">
 		{#each tabs as tab (tab.value)}
 			<Tabs.Trigger value={tab.value}>{tab.title}</Tabs.Trigger>
