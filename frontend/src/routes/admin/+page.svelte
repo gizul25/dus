@@ -1,1 +1,0 @@
-<p>This will be an admin page</p>
