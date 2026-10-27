@@ -16,10 +16,10 @@
 		data: TData[];
 		searchText: string;
 		searchColumn: string;
-
+		headerChildren: any[];
 	};
 
-	let { data, columns, searchText, searchColumn }: DataTableProps<TData> = $props();
+	let { data, columns, searchText, searchColumn, headerChildren }: DataTableProps<TData> = $props();
 
 	const table = createTable({
 		features,
@@ -67,6 +67,7 @@
 				<SearchIcon />
 			</InputGroup.Addon>
 		</InputGroup.Root>
+		{@render headerChildren?.()}
 		<Field.Field orientation="horizontal" class="ms-auto w-fit">
 			<Field.Label for="select-rows-per-page">Rows per page</Field.Label>
 			<Select.Root type="single" bind:value={getPageSize, setPageSize}>

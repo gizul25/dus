@@ -3,12 +3,15 @@
 	import EditIcon from 'remixicon-svelte/icons/pencil-fill';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import * as DropdownMenu from '#lib/components/ui/dropdown-menu/index.js';
+	import { getContext } from 'svelte';
 
 	let { id }: { id: string } = $props();
+
+	let userContext = getContext('userContext');
 </script>
 
 <div class="flex justify-end">
-	<Button variant="ghost" size="icon" class="relative size-8 p-0">
+	<Button variant="ghost" size="icon" class="relative size-8 p-0" onclick={() => userContext.openEditUserDetails(id)}>
 		<EditIcon />
 	</Button>
 	<DropdownMenu.Root>
@@ -28,8 +31,8 @@
 				</DropdownMenu.Item>
 			</DropdownMenu.Group>
 			<DropdownMenu.Separator />
-			<DropdownMenu.Item>View user details</DropdownMenu.Item>
-			<DropdownMenu.Item>Delete user</DropdownMenu.Item>
-		</DropdownMenu.Content>
+			<DropdownMenu.Item onclick={() => userContext.openEditUserDetails(id)}>Edit user details</DropdownMenu.Item>
+			<DropdownMenu.Item onclick={() => userContext.openDeleteUser(id)}>Delete user</DropdownMenu.Item>
+		</DropdownMenu.Content>	
 	</DropdownMenu.Root>
 </div>
