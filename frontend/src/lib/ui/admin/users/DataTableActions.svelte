@@ -7,11 +7,11 @@
 
 	let { id }: { id: string } = $props();
 
-	let userContext = getContext('userContext');
+	let actionContext = getContext('actionContext');
 </script>
 
 <div class="flex justify-end">
-	<Button variant="ghost" size="icon" class="relative size-8 p-0" onclick={() => userContext.openEditUserDetails(id)}>
+	<Button variant="ghost" size="icon" class="relative size-8 p-0" onclick={() => actionContext.openEditUserDetails(id)}>
 		<EditIcon />
 	</Button>
 	<DropdownMenu.Root>
@@ -31,8 +31,8 @@
 				</DropdownMenu.Item>
 			</DropdownMenu.Group>
 			<DropdownMenu.Separator />
-			<DropdownMenu.Item onclick={() => userContext.openEditUserDetails(id)}>Edit user details</DropdownMenu.Item>
-			<DropdownMenu.Item onclick={() => userContext.openDeleteUser(id)}>Delete user</DropdownMenu.Item>
+			<DropdownMenu.Item onclick={() => actionContext.openEditUserDetails(id)}>Edit user details</DropdownMenu.Item>
+			<DropdownMenu.Item onclick={() => actionContext.openDeleteUser(id)}>Delete user</DropdownMenu.Item>
 		</DropdownMenu.Content>	
 	</DropdownMenu.Root>
 </div>

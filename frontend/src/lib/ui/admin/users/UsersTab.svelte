@@ -81,7 +81,7 @@
 		data = data.filter((u) => u.id !== editingUser.id);
 	}
 
-	setContext('userContext', {
+	setContext('actionContext', {
 		openCreateNewUser,
 		openEditUserDetails,
 		openDeleteUser

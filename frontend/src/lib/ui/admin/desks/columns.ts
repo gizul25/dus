@@ -5,6 +5,7 @@ import DataTableActions from "./DataTableActions.svelte";
 
 export type Desk = {
     id: string;
+    name: string;
 };
 
 const columnHelper = createColumnHelper<DataTableFeatures, Desk>();
@@ -34,6 +35,9 @@ export const columns = columnHelper.columns([
     }),
     columnHelper.accessor("id", {
         header: "Desk ID",
+    }),
+    columnHelper.accessor("name", {
+        header: "Name",
     }),
     columnHelper.display({
         id: "actions",
