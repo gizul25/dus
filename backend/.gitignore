@@ -1,2 +1,4 @@
 /.venv
+/.venv-backend
+/.venv-ws
 __pycache__/
