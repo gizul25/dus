@@ -14,9 +14,12 @@
 	type DataTableProps<TData extends RowData> = {
 		columns: ColumnDef<DataTableFeatures, TData>[];
 		data: TData[];
+		searchText: string;
+		searchColumn: string;
+
 	};
 
-	let { data, columns }: DataTableProps<TData> = $props();
+	let { data, columns, searchText, searchColumn }: DataTableProps<TData> = $props();
 
 	const table = createTable({
 		features,
@@ -52,14 +55,13 @@
 </script>
 
 <div>
-	<div style:width={`${102}px`} style:minWidth={`${102}px`}></div>
 	<div class="flex items-center gap-x-4 pb-4">
 		<InputGroup.Root class="max-w-sm">
 			<InputGroup.Input
-				placeholder="Filter emails..."
-				value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
-				onchange={(e) => table.getColumn('email')?.setFilterValue(e.currentTarget.value)}
-				oninput={(e) => table.getColumn('email')?.setFilterValue(e.currentTarget.value)}
+				placeholder={searchText}
+				value={(table.getColumn(searchColumn)?.getFilterValue() as string) ?? ''}
+				onchange={(e) => table.getColumn(searchColumn)?.setFilterValue(e.currentTarget.value)}
+				oninput={(e) => table.getColumn(searchColumn)?.setFilterValue(e.currentTarget.value)}
 			/>
 			<InputGroup.Addon>
 				<SearchIcon />

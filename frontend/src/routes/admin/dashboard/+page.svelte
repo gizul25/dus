@@ -1,10 +1,10 @@
 <script lang="ts">
 	import * as Tabs from '#lib/components/ui/tabs/index.js';
-	import DesksTab from '#lib/ui/admin/DesksTab.svelte';
 	import IssuesTab from '#lib/ui/admin/IssuesTab.svelte';
 	import MapTab from '#lib/ui/admin/MapTab.svelte';
 
 	import UsersTab from '#lib/ui/admin/users/UsersTab.svelte';
+	import DesksTab from '#lib/ui/admin/desks/DesksTab.svelte';
 
 	const tabs = [
 		{

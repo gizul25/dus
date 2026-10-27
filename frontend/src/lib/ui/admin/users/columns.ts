@@ -1,5 +1,5 @@
 import { createColumnHelper, renderComponent } from "@tanstack/svelte-table";
-import type { DataTableFeatures } from "./data-table-features.js";
+import type { DataTableFeatures } from "#lib/ui/admin/table/data-table-features.js";
 import DataTableCheckbox from "./DataTableCheckbox.svelte";
 import DataTableEmailButton from "./DataTableEmailButton.svelte";
 import DataTableActions from "./DataTableActions.svelte";

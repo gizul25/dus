@@ -1,5 +1,5 @@
 <script lang="ts">
-	import DataTable from './DataTable.svelte';
+	import UserDataTable from './UserDataTable.svelte';
 	import { columns, type User } from './columns.js';
 
 	export const data: User[] = [
@@ -24,4 +24,4 @@
 	];
 </script>
 
-<DataTable {data} {columns} />
+<UserDataTable {data} {columns} />
