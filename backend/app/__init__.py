@@ -16,27 +16,36 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-backend_app = FastAPI(dependencies=[Depends(get_query_token)])
-
-@backend_app.on_event("startup")
-def startup_db_client():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     logger.info('lifespan starting')
-    backend_app.mongo_client = pymongo.MongoClient(os.environ["MONGODB_URL"])
-    backend_app.db = backend_app.mongo_client.appdb
+
+    app.mongo_client = pymongo.MongoClient(os.environ["MONGODB_URL"])
+    db_name = os.environ["DBNAME"]
+    app.db = app.mongo_client[db_name]
+
     logger.info('lifespan ready')
 
-@backend_app.on_event("shutdown")
-def shutdown_db_client():
+    yield
+
     logger.info('lifespan closing')
-    backend_app.mongo_client.close()
-    backend_app.mongo_client = None
-    backend_app.db = None
+
+    app.mongo_client.close()
+    app.mongo_client = None
+    app.db = None
+
     logger.info('lifespan closed')
 
+def make_app(lifespan):
+    app = FastAPI(lifespan=lifespan)
 
-backend_app.include_router(items.router)
-backend_app.include_router(admin_users.router)
+    app.include_router(items.router)
+    app.include_router(admin_users.router)
 
-@backend_app.get("/")
-async def root():
-    return {"message": "Hello from backend!"}
+    @app.get("/")
+    async def root():
+        return {"message": "Hello from backend!"}
+    
+    return app
+
+backend_app = make_app(lifespan)

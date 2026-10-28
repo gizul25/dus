@@ -11,3 +11,14 @@ Async:
 - Async tutorial: https://www.mongodb.com/docs/languages/python/pymongo-driver/current/integrations/fastapi-integration/
 
 Databases and collections are created automatically when finding, inserting, etc.
+
+Testing:
+- https://fastapi.tiangolo.com/tutorial/testing/#using-testclient
+- https://fastapi.tiangolo.com/advanced/async-tests/
+- https://anyio.readthedocs.io/en/stable/testing.html
+- https://github.com/florimondmanca/asgi-lifespan#usage
+
+Run tests (inside container):
+```bash
+uv run pytest
+```
