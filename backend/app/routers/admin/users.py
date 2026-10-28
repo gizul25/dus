@@ -1,5 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+import logging
+import uuid
+from typing import Optional, List
+from pydantic import BaseModel, Field
+from fastapi import APIRouter, Body, Request, Response, Depends, HTTPException, status
+from fastapi.encoders import jsonable_encoder
 from ...dependencies import get_token_header
+
+logger = logging.getLogger(__name__)
 
 # TODO: add token dependency once auth is implemented
 router = APIRouter(
@@ -8,41 +15,61 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-fake_items_db = {"plumbus": {"name": "Plumbus"}, "gun": {"name": "Portal Gun"}}
+class User(BaseModel):
+    id: str = Field(default_factory=uuid.uuid4, alias="_id")
+    name: str = Field(...)
+    email: str = Field(...)
 
+class UserUpdate(BaseModel):
+    name: Optional[str]
+    email: Optional[str]
 
-@router.get("/")
-async def get_users():
-    return fake_items_db
+@router.get("/", response_model=List[User])
+async def get_users(request: Request):
+    col = request.app.db.users
+    users = list(col.find(limit=100))
+    return users
 
+@router.get("/{id}", response_model=User)
+def get_user(id: str, request: Request):
+    col = request.app.db.users
+    user = col.find_one({"_id": id})
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with ID {id} not found")
+    return user
 
-@router.get("/{user_id}")
-async def get_user(user_id: str):
-    if item_id not in fake_items_db:
-        raise HTTPException(status_code=404, detail="Item not found")
-    return {"name": fake_items_db[item_id]["name"], "item_id": item_id}
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=str)
+def create_user(request: Request, user: User = Body(...)):
+    col = request.app.db.users
+    user = jsonable_encoder(user)
+    new_user = col.insert_one(user)
 
+    return new_user.inserted_id
 
-@router.put(
-    "/{item_id}",
-    tags=["custom"],
-    responses={403: {"description": "Operation forbidden"}},
-)
-async def update_user(user_id: str):
-    if item_id != "plumbus":
-        raise HTTPException(
-            status_code=403, detail="You can only update the item: plumbus"
-        )
-    return {"item_id": item_id, "name": "The great Plumbus"}
+@router.put("/{id}", response_model=User)
+def update_user(id: str, request: Request, user: UserUpdate = Body(...)):
+    user = jsonable_encoder(user)
+    col = request.app.db.users
+    update_result = col.update_one(
+        {"_id": id}, {"$set": user}
+    )
 
-@router.delete(
-    "/{item_id}",
-    tags=["custom"],
-    responses={403: {"description": "Operation forbidden"}},
-)
-async def delete_user(user_id: str):
-    if item_id != "plumbus":
-        raise HTTPException(
-            status_code=403, detail="You can only update the item: plumbus"
-        )
-    return {"item_id": item_id, "name": "The great Plumbus"}
+    if update_result.modified_count == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with ID {id} not found")
+
+    existing_user = col.find_one({"_id": id})
+    if existing_user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with ID {id} not found")
+    
+    return existing_user
+
+@router.delete("/{id}")
+def delete_user(id: str, request: Request, response: Response):
+    col = request.app.db.users
+    delete_result = col.delete_one({"_id": id})
+
+    if delete_result.deleted_count == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with ID {id} not found")
+    
+    response.status_code = status.HTTP_204_NO_CONTENT
+    return response
