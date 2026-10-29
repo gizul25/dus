@@ -5,13 +5,11 @@ from uuid import uuid4
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
-# Supported desk positions
 class DeskPosition(StrEnum):
     SITTING = "sitting"
     STANDING = "standing"
 
 
-# User-specific timer settings and height thresholds
 class TimerProfile(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -19,8 +17,8 @@ class TimerProfile(BaseModel):
     standing_min_height_cm: float = Field(default=95, gt=0, le=200)
     sitting_target_minutes: int = Field(default=30, gt=0, le=480)
     standing_target_minutes: int = Field(default=10, gt=0, le=480)
+    position_confirmation_seconds: int = Field(default=5, ge=0, le=300)
 
-    # Ensure sitting and standing height ranges do not overlap
     @model_validator(mode="after")
     def validate_height_thresholds(self) -> "TimerProfile":
         if self.seated_max_height_cm >= self.standing_min_height_cm:
@@ -80,12 +78,10 @@ class TimerProfileRegistry:
         return profile
 
 
-# Represents a single height measurement
 class HeightReading(BaseModel):
     height_cm: float = Field(gt=0, le=200)
     recorded_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    # Assign UTC to timestamps without a timezone
     @field_validator("recorded_at")
     @classmethod
     def normalize_timestamp(cls, value: datetime) -> datetime:
@@ -94,7 +90,46 @@ class HeightReading(BaseModel):
         return value
 
 
-# Represents the current status of the desk, including position, time spent, and target times
+class SittingPeriod(BaseModel):
+    start_at: datetime
+    end_at: datetime | None = None
+    duration_seconds: float = 0.0
+    position: DeskPosition = DeskPosition.SITTING
+
+
+class MeasurementRepository:
+    def __init__(self):
+        self._measurements: list[HeightReading] = []
+
+    def add(self, reading: HeightReading) -> None:
+        self._measurements.append(reading)
+
+    def list(self, limit: int | None = None) -> list[HeightReading]:
+        items = list(self._measurements)
+        if limit is not None:
+            return items[-limit:]
+        return items
+
+    def latest(self) -> HeightReading | None:
+        if not self._measurements:
+            return None
+        return self._measurements[-1]
+
+
+class SittingPeriodRepository:
+    def __init__(self):
+        self._periods: list[SittingPeriod] = []
+
+    def add(self, period: SittingPeriod) -> None:
+        self._periods.append(period)
+
+    def list(self, limit: int | None = None) -> list[SittingPeriod]:
+        items = list(self._periods)
+        if limit is not None:
+            return items[-limit:]
+        return items
+
+
 class DeskStatus(BaseModel):
     height_cm: float | None
     position: DeskPosition | None
@@ -103,42 +138,36 @@ class DeskStatus(BaseModel):
     position_seconds: float
     target_seconds: int | None
     timer_overdue: bool
+    reminder_due: bool
     last_reading_at: datetime | None
 
 
-# Tracks the desk's position and time spent in each position based on height readings
 class DeskTracker:
     def __init__(self, profile: TimerProfile | None = None):
-        # Use the provided profile or default settings
         self.profile = profile or TimerProfile()
+        self.measurements = MeasurementRepository()
+        self.sitting_periods = SittingPeriodRepository()
 
-        # Initialize the current desk state
         self.height_cm: float | None = None
         self.position: DeskPosition | None = None
-
-        # Initialize time counters
         self.sitting_seconds = 0.0
         self.standing_seconds = 0.0
         self.position_seconds = 0.0
-
-        # Store the timestamp of the last measurement
         self.last_reading_at: datetime | None = None
+        self.pending_position: DeskPosition | None = None
+        self.pending_position_since: datetime | None = None
+        self.reminder_triggered = False
+        self.current_period: SittingPeriod | None = None
 
-    # Update the user's timer settings
     def update_profile(self, profile: TimerProfile) -> None:
         self.profile = profile
 
-    # Process a new height measurement and update the desk status
     def record(self, reading: HeightReading) -> DeskStatus:
-        # Calculate elapsed time since the previous measurement
         if self.last_reading_at is not None:
-            # Reject measurements received out of chronological order
             if reading.recorded_at < self.last_reading_at:
                 raise ValueError("recorded_at cannot precede the previous reading")
 
             elapsed = (reading.recorded_at - self.last_reading_at).total_seconds()
-
-            # Add elapsed time to the previous position's counters
             if self.position == DeskPosition.SITTING:
                 self.sitting_seconds += elapsed
                 self.position_seconds += elapsed
@@ -146,31 +175,49 @@ class DeskTracker:
                 self.standing_seconds += elapsed
                 self.position_seconds += elapsed
 
-        # Determine the position from the new height
-        classified = self._classify(reading.height_cm)
+        candidate = self._classify(reading.height_cm)
+        self.measurements.add(reading)
 
-        # Reset the position timer when the position changes
-        if classified is not None and classified != self.position:
-            self.position = classified
+        if self.position is None and candidate is not None:
+            self.position = candidate
             self.position_seconds = 0.0
+            self._start_or_continue_period(candidate, reading.recorded_at)
+        elif candidate is not None:
+            if candidate != self.position:
+                if self.pending_position != candidate or self.pending_position_since is None:
+                    self.pending_position = candidate
+                    self.pending_position_since = reading.recorded_at
+                elif (
+                    reading.recorded_at - self.pending_position_since
+                ).total_seconds() >= self.profile.position_confirmation_seconds:
+                    self._commit_position_change(candidate, reading.recorded_at)
+            else:
+                self.pending_position = None
+                self.pending_position_since = None
+                if self.current_period is not None and self.current_period.position != candidate:
+                    self._start_or_continue_period(candidate, reading.recorded_at)
 
-        # Store the latest measurement
         self.height_cm = reading.height_cm
         self.last_reading_at = reading.recorded_at
-
         return self.status()
 
-    # Build a status summary with the current timer information
     def status(self) -> DeskStatus:
         target_seconds = None
-
-        # Select the target duration for the current position
         if self.position == DeskPosition.SITTING:
             target_seconds = self.profile.sitting_target_minutes * 60
         elif self.position == DeskPosition.STANDING:
             target_seconds = self.profile.standing_target_minutes * 60
 
-        # Return the current state and timer progress
+        reminder_due = (
+            self.position == DeskPosition.SITTING
+            and target_seconds is not None
+            and self.position_seconds >= target_seconds
+            and not self.reminder_triggered
+        )
+
+        if self.position != DeskPosition.SITTING:
+            reminder_due = False
+
         return DeskStatus(
             height_cm=self.height_cm,
             position=self.position,
@@ -179,15 +226,42 @@ class DeskTracker:
             position_seconds=self.position_seconds,
             target_seconds=target_seconds,
             timer_overdue=(target_seconds is not None and self.position_seconds >= target_seconds),
+            reminder_due=reminder_due,
             last_reading_at=self.last_reading_at,
         )
 
-    # Classify desk position using the configured height thresholds
+    def _commit_position_change(self, new_position: DeskPosition, timestamp: datetime) -> None:
+        if self.current_period is not None and self.current_period.position != new_position:
+            self.current_period.end_at = timestamp
+            self.current_period.duration_seconds = max(
+                0.0,
+                (self.current_period.end_at - self.current_period.start_at).total_seconds(),
+            )
+            self.sitting_periods.add(self.current_period)
+            self.current_period = None
+
+        self.position = new_position
+        self.position_seconds = 0.0
+        self.pending_position = None
+        self.pending_position_since = None
+        self.reminder_triggered = False
+        self._start_or_continue_period(new_position, timestamp)
+
+    def _start_or_continue_period(self, position: DeskPosition, timestamp: datetime) -> None:
+        if self.current_period is None:
+            self.current_period = SittingPeriod(start_at=timestamp, position=position)
+        elif self.current_period.position != position:
+            self.current_period.end_at = timestamp
+            self.current_period.duration_seconds = max(
+                0.0,
+                (self.current_period.end_at - self.current_period.start_at).total_seconds(),
+            )
+            self.sitting_periods.add(self.current_period)
+            self.current_period = SittingPeriod(start_at=timestamp, position=position)
+
     def _classify(self, height_cm: float) -> DeskPosition | None:
         if height_cm <= self.profile.seated_max_height_cm:
             return DeskPosition.SITTING
         if height_cm >= self.profile.standing_min_height_cm:
             return DeskPosition.STANDING
-
-        # Return None when the height is between the sitting and standing thresholds
         return None
