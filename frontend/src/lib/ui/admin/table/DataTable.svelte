@@ -128,6 +128,7 @@
 						{#each row.getVisibleCells() as cell (cell.id)}
 							<Table.Cell
 								style={`min-width:${cell.column.columnDef.size}px;max-width:${cell.column.columnDef.size}px`}
+								class="h-14"
 							>
 								<FlexRender {cell} />
 							</Table.Cell>

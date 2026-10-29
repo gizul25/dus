@@ -38,9 +38,11 @@ export const columns = columnHelper.columns([
     }),
     columnHelper.accessor("firstName", {
         header: "First name",
+        maxSize: 300,
     }),
     columnHelper.accessor("lastName", {
         header: "Last name",
+        maxSize: 300,
     }),
     columnHelper.accessor("email", {
         header: ({ column }) =>
@@ -50,7 +52,6 @@ export const columns = columnHelper.columns([
     }),
     columnHelper.display({
         id: "actions",
-        size: 50,
         cell: ({ row }) => {
             return renderComponent(DataTableActions, { id: row.original.id });
         },

@@ -35,13 +35,14 @@ export const columns = columnHelper.columns([
     }),
     columnHelper.accessor("id", {
         header: "Desk ID",
+        maxSize: 300,
     }),
     columnHelper.accessor("name", {
         header: "Name",
+        maxSize: 300,
     }),
     columnHelper.display({
         id: "actions",
-        size: 50,
         cell: ({ row }) => {
             return renderComponent(DataTableActions, { id: row.original.id });
         },
