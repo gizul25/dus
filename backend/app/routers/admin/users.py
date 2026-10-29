@@ -17,11 +17,13 @@ router = APIRouter(
 
 class User(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
-    name: str = Field(...)
+    first_name: str = Field(...)
+    last_name: str = Field(...)
     email: str = Field(...)
 
 class UserUpdate(BaseModel):
-    name: Optional[str]
+    first_name: Optional[str]
+    last_name: Optional[str]
     email: Optional[str]
 
 @router.get("/", response_model=List[User])

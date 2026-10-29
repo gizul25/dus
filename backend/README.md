@@ -17,6 +17,7 @@ Testing:
 - https://fastapi.tiangolo.com/advanced/async-tests/
 - https://anyio.readthedocs.io/en/stable/testing.html
 - https://github.com/florimondmanca/asgi-lifespan#usage
+- https://docs.pytest.org/en/stable/how-to/fixtures.html
 
 Run tests (inside container):
 ```bash

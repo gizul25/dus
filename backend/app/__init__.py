@@ -6,7 +6,7 @@ from pymongo import AsyncMongoClient
 import pymongo
 
 from .dependencies import get_query_token, get_token_header
-from .routers.admin import users as admin_users
+from .routers.admin import users as admin_users, desks as admin_desks
 from .routers import items
 from .ws import ws_app
 
@@ -41,6 +41,7 @@ def make_app(lifespan):
 
     app.include_router(items.router)
     app.include_router(admin_users.router)
+    app.include_router(admin_desks.router)
 
     @app.get("/")
     async def root():
