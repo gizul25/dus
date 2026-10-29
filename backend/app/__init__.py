@@ -8,7 +8,7 @@ from fastapi import Depends, FastAPI
 
 from .dependencies import get_query_token, get_token_header
 from .internal import admin
-from .routers import desk, items, users
+from .routers import telemetry, desk, items, users
 from .routers.admin import users as admin_users, desks as admin_desks
 
 try:
@@ -16,11 +16,6 @@ try:
 except ModuleNotFoundError:
     ws_app = None
 
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
-)
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +46,7 @@ def make_app(lifespan):
         lifespan=lifespan,
     )
 
+    app.include_router(telemetry.router)
     app.include_router(users.router)
     app.include_router(items.router)
     app.include_router(desk.router)
