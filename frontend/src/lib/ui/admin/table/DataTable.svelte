@@ -112,7 +112,7 @@
 						{#each headerGroup.headers as header (header.id)}
 							<Table.Head
 								colspan={header.colSpan}
-								style={`min-width:${header.column.columnDef.size}px;max-width:${header.column.columnDef.size}px`}
+								style={`min-width:${header.column.columnDef.minSize}px;max-width:${header.column.columnDef.maxSize}px;width:${header.column.columnDef.size}px`}
 							>
 								{#if !header.isPlaceholder}
 									<FlexRender {header} />
@@ -127,7 +127,7 @@
 					<Table.Row data-state={row.getIsSelected() && 'selected'}>
 						{#each row.getVisibleCells() as cell (cell.id)}
 							<Table.Cell
-								style={`min-width:${cell.column.columnDef.size}px;max-width:${cell.column.columnDef.size}px`}
+								style={`min-width:${cell.column.columnDef.minSize}px;max-width:${cell.column.columnDef.maxSize}px;`}
 								class="h-14"
 							>
 								<FlexRender {cell} />

@@ -31,18 +31,23 @@ export const columns = columnHelper.columns([
             }),
         enableSorting: false,
         enableHiding: false,
-        size: 24
+        size: 16
     }),
     columnHelper.accessor("id", {
         header: "Desk ID",
+        size: 300,
         maxSize: 300,
     }),
     columnHelper.accessor("name", {
         header: "Name",
+        size: 300,
         maxSize: 300,
     }),
     columnHelper.display({
         id: "actions",
+        // @ts-expect-error: A workaround for proper column sizing, because this value just gets passed to CSS, so it can be not only number.
+        size: "fit-content",
+        maxSize: 99999,
         cell: ({ row }) => {
             return renderComponent(DataTableActions, { id: row.original.id });
         },
