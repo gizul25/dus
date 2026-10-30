@@ -1,0 +1,38 @@
+<script lang="ts">
+	import EllipsisIcon from 'remixicon-svelte/icons/more-fill';
+	import EditIcon from 'remixicon-svelte/icons/pencil-fill';
+	import { Button } from '#lib/components/ui/button/index.js';
+	import * as DropdownMenu from '#lib/components/ui/dropdown-menu/index.js';
+	import { getContext } from 'svelte';
+
+	let { id }: { id: string } = $props();
+
+	let actionContext = getContext('actionContext');
+</script>
+
+<div class="flex justify-end">
+	<Button variant="ghost" size="icon" class="relative size-8 p-0" onclick={() => actionContext.openEditDeskDetails(id)}>
+		<EditIcon />
+	</Button>
+	<DropdownMenu.Root>
+		<DropdownMenu.Trigger>
+			{#snippet child({ props })}
+				<Button {...props} variant="ghost" size="icon" class="relative size-8 p-0">
+					<span class="sr-only">Open menu</span>
+					<EllipsisIcon />
+				</Button>
+			{/snippet}
+		</DropdownMenu.Trigger>
+		<DropdownMenu.Content>
+			<DropdownMenu.Group>
+				<DropdownMenu.Label>Actions</DropdownMenu.Label>
+				<DropdownMenu.Item onclick={() => navigator.clipboard.writeText(id)}>
+					Copy desk ID
+				</DropdownMenu.Item>
+			</DropdownMenu.Group>
+			<DropdownMenu.Separator />
+			<DropdownMenu.Item onclick={() => actionContext.openEditDeskDetails(id)}>View desk details</DropdownMenu.Item>
+			<DropdownMenu.Item onclick={() => actionContext.openDeleteDesk(id)}>Delete desk</DropdownMenu.Item>
+		</DropdownMenu.Content>
+	</DropdownMenu.Root>
+</div>

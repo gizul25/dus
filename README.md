@@ -23,6 +23,13 @@ Server URIs:
 
 # Debugging tools
 
+## Frontend
+
+If you feel like import errors are false, you can try restarting frontend container:
+```bash
+docker restart dus-frontend-1
+```
+
 ## Docker
 
 ```bash
