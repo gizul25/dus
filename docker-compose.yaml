@@ -25,6 +25,8 @@ services:
     command: ./dev-backend.sh
     ports:
       - 8000:8000
+    environment:
+     JWT_SECRET: tDfPmnb4Cb-EDjp0kk7QEgj7MwbcjliScxwM-QV1R-c
   ws:
     build: infra/dev
     volumes:

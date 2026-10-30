@@ -1,26 +1,19 @@
-import os
 import jwt
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, HTTPException, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
+from ..dependencies import JWT_SECRET, JWT_ALGORITHM, get_current_user
+from ..database import db
 
 router = APIRouter(
     prefix="/auth",
     tags=["auth"]
 )
-ph = PasswordHasher()
-security = HTTPBearer()
+ph = PasswordHasher()    
 
-JWT_SECRET = # configure 
-JWT_ALGORITHM="HS256"
-
-# For test purposes now
-client = MongoClient("mongodb://root:password@database:27017?authSource=admin")
-db = client["database"]
 
 
 class LoginRequest(BaseModel):
@@ -39,7 +32,7 @@ class User(BaseModel):
 def create_token(user_id: str):
     token_payload = {
         "sub": user_id,
-        "exp": datetime.now(timezone.utc) + timedelta(hourse=1) # for now expires after 1h, change later
+        "exp": datetime.now(timezone.utc) + timedelta(hours=1) # for now expires after 1h
     }
     return jwt.encode(
         token_payload,
@@ -51,7 +44,7 @@ def create_token(user_id: str):
 @router.post("/login")
 def login_user(credentials: LoginRequest):
 
-    user = db["users"].find_one({"email: credentials.email"})
+    user = db["users"].find_one({"email": credentials.email})
 
     if user is None:
         raise HTTPException(
@@ -76,4 +69,38 @@ def login_user(credentials: LoginRequest):
     }
 
 
-@router.post("/logout")
+# @router.post("/logout")
+# def logout_user()
+
+# I will move this to admin once it will be merged
+@router.post("/users")
+def create_user_account(user: User):
+    hashed_password = ph.hash(user.password)
+
+    try:
+            result = db["users"].insert_one({
+                "fname": user.fname,
+                "lname": user.lname,
+                "email": user.email,
+                "password": hashed_password,
+                "role": "user"
+            })
+
+    except DuplicateKeyError:
+        raise HTTPException(
+            status_code=409,
+            detail="Email already registered"
+        )
+    return {
+        "message": "User created successfully",
+    }
+
+
+# test
+@router.get("/me")
+def get_me(current_user: dict = Depends(get_current_user)):
+    return {
+        "fname": current_user["fname"],
+        "lname": current_user["lname"],
+        "role": current_user["role"]
+    }
