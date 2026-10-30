@@ -8,3 +8,8 @@ dependencies = [
     "aiokafka>=0.14.0",
     "fastapi[standard]>=0.151.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+]
