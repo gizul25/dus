@@ -46,6 +46,9 @@ Subscribing:
 - Desk ID, Name, Manufacturer
 - Position (get/set)
 - Speed **?**
+- Position Lost flag
+- Overload Protection Up/Down flags
+- Anti Collision flag
 - Status
 - Last errors with timestamps
 - Activation counter
