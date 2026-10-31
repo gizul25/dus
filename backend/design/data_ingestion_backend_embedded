@@ -1,0 +1,83 @@
+## Pico
+### Data
+- temperature
+- humidity
+- light ??
+- errors?
+- status?
+All available sensor readings in one message, if one is unavailable, the field is omitted.
+### MQTT
+
+MQTT Broker - Mosquitto:
+- container running `mosquitto` from the image `eclipse-mosquitto:latest` with ports `1883:1883`
+- Port `1883`: standard MQTT (unencrypted)
+- configure in `/mosquitto.conf`
+
+Backend Python MQTT Client - subscriber:
+- connect to MQTT broker, subscribe to relevant topics, receive messages, and forward valid data for processing
+- `paho-mqtt`
+
+Pico W MQTT Client - publisher:
+- connects to MQTT broker and publishes sensor measurement/relevant device status/error info
+- `MQTTClient.h` (IwIP)
+#### TOPICS (created on subscription)
+- `pico/pico-001/sensors` -> or any other desk#
+- message has: timestamp, temperature, humidity, light
+- if we have errors/status, it would be under a different topic
+Publishing:
+- sends message topic, message QOS and retain flag
+- `QOS-1`: guarantees message delivery (duplicate)
+Subscribing:
+- QOS-1 of topic subscription?
+- pico/+/sensors (subscribe to all picos)
+
+### Processing
+- Pico ID from MQTT topic
+- Look up of Pico's registration and desk association in DB
+- Sensor reading not stored if Pico is not registered/not associated
+- Validating available sensor readings
+- One historical doc containing all avaliable readings and the associated desk ID (if a pico moves to a diff desk, the historical data should be associated with the desk, not pico)
+### Database Schemas
+
+## Desk
+- All desks connect to WiFi2BLE Box, which connects to backend through REST API
+### Data 
+- Number of desks connected to WiFi2BLE box
+- Desk ID, Name, Manufacturer
+- Position (get/set)
+- Speed **?**
+- Position Lost flag
+- Overload Protection Up/Down flags
+- Anti Collision flag
+- Status
+- Last errors with timestamps
+- Activation counter
+- Sit/stand counter
+
+*Is there something we don't need?*
+### REST API
+- [SDM Edu / WiFi2BLE Box Simulator · GitLab](https://source.coderefinery.org/sdm-edu/wifi2ble-box-simulator)
+- `requests`
+## Database Schemas
+
+desks:
+- "desk_id"
+- "pico_id"
+
+(identify desk and store Pico associated with that desk)
+
+sensor_readings:
+- "_id"
+- "desk_id"
+- "timestamp"
+- "temperature"
+- "humidity"
+- "light"
+
+desk_readings:
+- "id"
+- "desk_id"
+- "timestamp"
+- "height"
+- "status"
+- "pico_id" -> maybe needed for debugging?
