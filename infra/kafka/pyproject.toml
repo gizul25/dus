@@ -1,0 +1,11 @@
+[project]
+name = "kafka-utils"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.15"
+dependencies = [
+    "aiokafka>=0.14.0",
+    "kafka-python>=3.0.11",
+    "prompt-toolkit>=3.0.53",
+]
