@@ -23,20 +23,37 @@ function fingerprint(message: string, source: Source, url: string): string {
 function isRecentDuplicate(fp: string): boolean {
 	const now = Date.now();
 	const last = seen.get(fp);
-	if (last !== undefined && now - last < DEDUP_WINDOW_MS) return true;
-	seen.set(fp, now);
-	if (seen.size > 200) {
-		for (const [k, t] of seen) if (now - t > DEDUP_WINDOW_MS) seen.delete(k);
+
+	if (last !== undefined && now - last < DEDUP_WINDOW_MS) {
+		return true;
 	}
+	
+	seen.set(fp, now);
+	
+	if (seen.size <= 200 ) {
+		return false;
+	}
+	
+	for (const [k, t] of seen) {
+		if (now - t > DEDUP_WINDOW_MS) {
+			seen.delete(k);
+		}
+	}
+	
 	return false;
 }
 
 export function sendError(report: Report): void {
-	if (!browser) return;
+	if (!browser) {
+		return;
+	}
 
 	const url = report.url ?? location.pathname;
 	const fp = fingerprint(report.message, report.source, url);
-	if (isRecentDuplicate(fp)) return;
+
+	if (isRecentDuplicate(fp)) {
+		return;
+	}
 
 	const body: Report = {
 		...report,
@@ -55,7 +72,9 @@ export function sendError(report: Report): void {
 }
 
 export function installGlobalErrorHandlers(): void {
-	if (!browser) return;
+	if (!browser) {
+		return;
+	}
 
 	window.addEventListener('error', (event) => {
 		const err = event.error instanceof Error ? event.error : null;
