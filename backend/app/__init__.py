@@ -1,7 +1,7 @@
 from fastapi import Depends, FastAPI
 
 from .dependencies import get_query_token, get_token_header
-from .desk_reminder import preferences
+from .desk_reminder import reminder
 from .internal import admin
 from .routers import items, users
 
@@ -17,6 +17,7 @@ app.include_router(
     dependencies=[Depends(get_token_header)],
     responses={418: {"description": "I'm a teapot"}},
 )
+app.include_router(reminder)
 
 
 @app.get("/")
