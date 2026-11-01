@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+from fastapi import Request
 
 class ReminderPreferences(BaseModel):
     led_switch: bool = False
@@ -8,19 +9,19 @@ class ReminderPreferences(BaseModel):
     forced_standup_switch: bool = False
 
 reminder = APIRouter()
-preferences = ReminderPreferences()
 forced_standup_active = False
 ordinary_reminder_active = False
 
 @reminder.post("/pref/")
-async def pref(pref: ReminderPreferences):
-    global preferences
-    preferences = pref
+def pref(pref: ReminderPreferences, request: Request):
+    col = request.app.db.reminder_preferences
+    col.update_one( {"_id": "default"}, {"$set": pref.model_dump()}, upsert=True)
     return pref
 
 @reminder.get("/pref/")
-async def pref():
-    return preferences
+def pref(request: Request):
+    return get_saved_preferences(request)
+
 
 def reminder_functionality(preferences: ReminderPreferences):
     reminder_dict = {
@@ -36,7 +37,7 @@ def reminder_functionality(preferences: ReminderPreferences):
             reminder_list.append(key)
     return reminder_list
 
-def is_forced_standup_reminder():
+def is_forced_standup_reminder(preferences: ReminderPreferences):
     global forced_standup_active
     forced_standup = preferences.forced_standup_switch
     if forced_standup:
@@ -58,19 +59,28 @@ def dismiss_reminder():
         ordinary_reminder_active = False
     return ordinary_reminder_active
 
+def get_saved_preferences(request: Request):
+    col = request.app.db.reminder_preferences
+    saved_preferences = col.find_one({"_id": "default"})
+    if saved_preferences is None:
+        preferences = ReminderPreferences()
+    else:
+        preferences = ReminderPreferences.model_validate(saved_preferences)
+    return preferences
+
 @reminder.post("/mock_timer_timeout/")
-async def mock_timer():
-    global preferences
+def mock_timer(request: Request):
     global ordinary_reminder_active
+    preferences = get_saved_preferences(request)
     timer_end = reminder_functionality(preferences)
     if timer_end:
         ordinary_reminder_active = True
     return timer_end
 
 @reminder.post("/mock_timer_timeout_optional_standup/")
-async def mock_timer_optional_standup():
-    global preferences
-    timer_end = is_forced_standup_reminder()
+def mock_timer_optional_standup(request: Request):
+    preferences = get_saved_preferences(request)
+    timer_end = is_forced_standup_reminder(preferences)
     return timer_end
 
 @reminder.post("/mock_height/")
