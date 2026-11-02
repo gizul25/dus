@@ -2,11 +2,11 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel
 from pymongo.errors import DuplicateKeyError
 from ..dependencies import JWT_SECRET, JWT_ALGORITHM, get_current_user
-from ..database import db
+
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 ph = PasswordHasher()
@@ -24,8 +24,6 @@ class User(BaseModel):
     lname: str
     email: str
     password: str
-    role: str
-
 
 def create_token(user_id: str, expiry_time: timedelta):
     token_payload = {"sub": user_id, "exp": datetime.now(timezone.utc) + expiry_time}
@@ -33,7 +31,9 @@ def create_token(user_id: str, expiry_time: timedelta):
 
 
 @router.post("/login")
-def login_user(credentials: LoginRequest, response: Response):
+def login_user(credentials: LoginRequest, request: Request, response: Response):
+
+    db = request.app.db
 
     user = db["users"].find_one({"email": credentials.email})
 
@@ -72,7 +72,8 @@ def logout_user(response: Response):
 
 # I will move this to admin once it will be merged
 @router.post("/users")
-def create_user_account(user: User):
+def create_user_account(user: User, request: Request):
+    db = request.app.db
     hashed_password = ph.hash(user.password)
 
     try:

@@ -1,20 +1,21 @@
 import os
 import jwt
 from jwt.exceptions import InvalidTokenError
-from fastapi import Cookie, HTTPException
+from fastapi import Cookie, HTTPException, Request
 from bson import ObjectId
 from bson.errors import InvalidId
-from .database import db
 
 
 JWT_SECRET = os.environ["JWT_SECRET"]
 JWT_ALGORITHM = "HS256"
 
 
-def get_current_user(access_token: str | None = Cookie(default=None)):
+def get_current_user(request: Request, access_token: str | None = Cookie(default=None)):
 
     if access_token is None:
         raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    db = request.app.db
 
     try:
         token_payload = jwt.decode(access_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
