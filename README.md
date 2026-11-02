@@ -23,6 +23,13 @@ Server URIs:
 
 # Debugging tools
 
+## Frontend
+
+If you feel like import errors are false, you can try restarting frontend container:
+```bash
+docker restart dus-frontend-1
+```
+
 ## Docker
 
 ```bash
@@ -41,6 +48,10 @@ sudo su user
 ```
 
 Container starting order is not enforced, so fallback, timeouts and retries for connecting to other services are important.
+
+## Backend
+
+Inspect OpenAPI docs: http://localhost:8000/docs
 
 ## MongoDB Compass
 
