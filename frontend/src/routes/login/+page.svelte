@@ -2,6 +2,7 @@
     import { goto } from '$app/navigation'
     let email = $state('');
     let password = $state('');
+    let rememberMe = $state(false);
     let errorMessage = $state('');
 
 
@@ -12,19 +13,18 @@
         try {
             const response = await fetch('http://localhost:8000/auth/login', {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     email: email,
-                    password: password
-                    // remember me added later
+                    password: password,
+                    remember_me: rememberMe
                     })
             });
 
             const data = await response.json();
-
-            // add token storage
 
             if (!response.ok) {
                 errorMessage = data.detail || "Login unsuccessful";
@@ -61,8 +61,8 @@
         <label for="password">Password</label>
         <input id="password" type="password" required bind:value={password}/>
 
-        <input type="checkbox" id="rememberme" name="rememberme"/>
-        <label for="rememberme">Remember Me</label>
+        <input type="checkbox" id="rememberMe" name="rememberMe" bind:checked={rememberMe}/>
+        <label for="rememberMe">Remember Me</label>
 
         <button type="submit">Login</button>
 
