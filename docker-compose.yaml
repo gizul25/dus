@@ -23,6 +23,9 @@ services:
       - ./:/app
     working_dir: /app/backend
     command: ./dev-backend.sh
+    environment:
+      MONGODB_URL: mongodb://root:password@database:27017/
+      DBNAME: appdb
     ports:
       - 8000:8000
   ws:
