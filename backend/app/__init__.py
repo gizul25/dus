@@ -7,7 +7,6 @@ import pymongo
 from fastapi import Depends, FastAPI
 
 from .dependencies import get_query_token, get_token_header
-
 from .internal import admin
 from .routers import telemetry, desk, items, users
 from .routers.admin import users as admin_users, desks as admin_desks

@@ -1,25 +1,14 @@
 import logging
-<<<<<<< Updated upstream
 from datetime import datetime
 from typing import Any, Literal
 
 from fastapi import APIRouter, Request, status
 from pydantic import BaseModel, Field
-=======
-import uuid
-from datetime import datetime, timezone
-from typing import Any, Literal
-
-from fastapi import APIRouter, HTTPException, Request, status
-from pydantic import BaseModel, ConfigDict, Field, field_validator
->>>>>>> Stashed changes
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/telemetry", tags=["telemetry"])
 
-<<<<<<< Updated upstream
-=======
 FrontendErrorSource = Literal[
     "window.error",
     "unhandledrejection",
@@ -27,36 +16,16 @@ FrontendErrorSource = Literal[
     "manual",
 ]
 
->>>>>>> Stashed changes
 
 class FrontendErrorIn(BaseModel):
     message: str = Field(..., min_length=1, max_length=2000)
     stack: str | None = Field(None, max_length=20_000)
-<<<<<<< Updated upstream
-    source: Literal[
-        "window.error",
-        "unhandledrejection",
-        "sveltekit",
-        "manual",
-    ] = "manual"
-=======
     source: FrontendErrorSource = "manual"
->>>>>>> Stashed changes
     url: str | None = Field(None, max_length=2000)
     userAgent: str | None = Field(None, max_length=1000)
     occurredAt: datetime | None = None
     context: dict[str, Any] | None = None
 
-<<<<<<< Updated upstream
-
-@router.post("/errors", status_code=status.HTTP_202_ACCEPTED)
-async def ingest_frontend_error(payload: FrontendErrorIn, request: Request) -> dict:
-    logger.warning(
-        "frontend_error source=%s url=%s ua=%r message=%r",
-        payload.source,
-        payload.url,
-        payload.userAgent or request.headers.get("user-agent"),
-=======
     @field_validator("occurredAt")
     @classmethod
     def normalize_timestamp(cls, value: datetime | None) -> datetime | None:
@@ -114,7 +83,6 @@ def ingest_frontend_error(payload: FrontendErrorIn, request: Request) -> dict:
         payload.source,
         payload.url,
         user_agent,
->>>>>>> Stashed changes
         payload.message,
     )
     if payload.stack:
@@ -122,9 +90,6 @@ def ingest_frontend_error(payload: FrontendErrorIn, request: Request) -> dict:
     if payload.context:
         logger.warning("frontend_error context=%r", payload.context)
 
-<<<<<<< Updated upstream
-    return {"status": "received"}
-=======
     return {"status": "received", "id": document["_id"]}
 
 
@@ -156,4 +121,3 @@ def read_frontend_error(error_id: str, request: Request) -> StoredFrontendError:
             detail=f"Frontend error with ID {error_id} not found",
         )
     return document
->>>>>>> Stashed changes
