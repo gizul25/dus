@@ -4,14 +4,14 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, Body, Request, Response, Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
-from ...dependencies import get_token_header
+from ...dependencies import get_current_admin
 
 logger = logging.getLogger(__name__)
 
-# TODO: add token dependency once auth is implemented
 router = APIRouter(
     prefix="/admin/users",
     tags=["admin"],
+    dependencies=[Depends(get_current_admin)],
     responses={404: {"description": "Not found"}},
 )
 
@@ -21,10 +21,18 @@ class User(BaseModel):
     last_name: str = Field(...)
     email: str = Field(...)
 
+class UserCreate(BaseModel):
+    first_name: str
+    last_name: str 
+    email: str
+    password: str
+    role: str = "user"
+
 class UserUpdate(BaseModel):
     first_name: Optional[str]
     last_name: Optional[str]
     email: Optional[str]
+    role: Optional[str]
 
 @router.get("/", response_model=List[User])
 async def get_users(request: Request):

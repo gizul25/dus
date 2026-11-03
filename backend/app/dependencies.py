@@ -1,7 +1,7 @@
 import os
 import jwt
 from jwt.exceptions import InvalidTokenError
-from fastapi import Cookie, HTTPException, Request
+from fastapi import Cookie, Depends, HTTPException, Request
 from bson import ObjectId
 from bson.errors import InvalidId
 
@@ -34,3 +34,12 @@ def get_current_user(request: Request, access_token: str | None = Cookie(default
 
     except (InvalidTokenError, InvalidId):
         raise HTTPException(status_code=401, detail="Invalid token")
+
+def get_current_admin(current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access required"
+        )
+
+    return current_user

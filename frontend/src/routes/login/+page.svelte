@@ -1,5 +1,12 @@
 <script>
     import { goto } from '$app/navigation'
+    import * as Card from '#lib/components/ui/card/index.ts';
+    import { Input } from '#lib/components/ui/input/index.ts';
+    import { Label } from '#lib/components/ui/label/index.ts';
+    import { Checkbox } from '#lib/components/ui/checkbox/index.ts';
+    import { Button } from '#lib/components/ui/button/index.ts';
+	import { Description } from '#lib/components/ui/alert-dialog/index.ts';
+
     let email = $state('');
     let password = $state('');
     let rememberMe = $state(false);
@@ -46,7 +53,39 @@
     
 </script>
 
+<main class="flex min-h-screen items-center justify-center">
+    <Card.Root class="w-full max-w-md">
+        <Card.Header>
+            <Card.Title>
+                Log In
+            </Card.Title>
+            <Card.Description>
+                Enter your credentials
+            </Card.Description>
+        </Card.Header>
+        <Card.Content>
+            <form onsubmit={handleLogin}>
+                <Label for="email">Email</Label>
+                <Input id="email" type="email" required bind:value={email} />
 
+                <Label for="password">Password</Label>
+                <Input id="password" type="password" required bind:value={password} />
+
+                
+                <Label for="rememberMe"> 
+                    <Checkbox id="rememberMe" bind:checked={rememberMe} />
+                    Remember me
+                </Label>
+
+                <Button type="submit">Login</Button>
+
+
+            </form>
+        </Card.Content>
+    </Card.Root>
+</main>
+
+<!-- 
 <main>
     <h1 class="text-3xl">Login</h1>
 
@@ -67,5 +106,5 @@
         <button type="submit">Login</button>
 
     </form>
-</main>
+</main> -->
 

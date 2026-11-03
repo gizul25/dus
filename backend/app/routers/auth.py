@@ -20,8 +20,8 @@ class LoginRequest(BaseModel):
 
 # For test purposes until users can registered
 class User(BaseModel):
-    fname: str
-    lname: str
+    first_name: str
+    last_name: str
     email: str
     password: str
 
@@ -79,8 +79,8 @@ def create_user_account(user: User, request: Request):
     try:
         db["users"].insert_one(
             {
-                "fname": user.fname,
-                "lname": user.lname,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
                 "email": user.email,
                 "password": hashed_password,
                 "role": "user",
@@ -97,7 +97,7 @@ def create_user_account(user: User, request: Request):
 @router.get("/me")
 def get_me(current_user: dict = Depends(get_current_user)):
     return {
-        "fname": current_user["fname"],
-        "lname": current_user["lname"],
+        "first_name": current_user["first_name"],
+        "last_name": current_user["last_name"],
         "role": current_user["role"],
     }
