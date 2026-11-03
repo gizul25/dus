@@ -68,6 +68,12 @@ def get_saved_preferences(request: Request):
         preferences = ReminderPreferences.model_validate(saved_preferences)
     return preferences
 
+def enable_reminder(enable: list):
+    global ordinary_reminder_active
+    if enable:
+        ordinary_reminder_active = True
+    return ordinary_reminder_active
+
 @reminder.post("/mock_timer_timeout/")
 def mock_timer(request: Request):
     global ordinary_reminder_active
