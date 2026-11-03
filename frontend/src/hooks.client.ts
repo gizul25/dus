@@ -12,4 +12,8 @@ export const handleError: HandleClientError = ({ error, status, message }) => {
 		context: { status }
 	});
 	return { message: 'An unexpected error occurred.' };
+<<<<<<< Updated upstream
 };
+=======
+};
+>>>>>>> Stashed changes
