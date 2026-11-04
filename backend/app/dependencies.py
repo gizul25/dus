@@ -1,13 +1,40 @@
-from typing import Annotated
+import os
+import jwt
+from jwt.exceptions import InvalidTokenError
+from fastapi import Cookie, Depends, HTTPException, Request
 
-from fastapi import Header, HTTPException
+JWT_SECRET = os.environ["JWT_SECRET"]
+JWT_ALGORITHM = "HS256"
 
 
-async def get_token_header(x_token: Annotated[str, Header()]):
-    if x_token != "fake-super-secret-token":
-        raise HTTPException(status_code=400, detail="X-Token header invalid")
+def get_current_user(request: Request, access_token: str | None = Cookie(default=None)):
+
+    if access_token is None:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    db = request.app.db
+
+    try:
+        token_payload = jwt.decode(access_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        request.state.login_mode = token_payload.get("mode")
+        user_id = token_payload.get("sub")
+
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        user = db["users"].find_one({"_id": user_id})
+
+        if user is None:
+            raise HTTPException(status_code=401, detail="User not found")
+
+        return user
+
+    except InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
 
 
-async def get_query_token(token: str):
-    if token != "jessica":
-        raise HTTPException(status_code=400, detail="No Jessica token provided")
+def get_current_admin(request: Request, current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") != "admin" or request.state.login_mode != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    return current_user
