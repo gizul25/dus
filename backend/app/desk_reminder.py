@@ -19,9 +19,8 @@ def pref(pref: ReminderPreferences, request: Request):
     return pref
 
 @reminder.get("/pref/")
-def pref(request: Request):
+def _pref(request: Request):
     return get_saved_preferences(request)
-
 
 def reminder_functionality(preferences: ReminderPreferences):
     reminder_dict = {

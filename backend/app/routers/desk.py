@@ -8,10 +8,17 @@ from ..desk_tracking import (
     SittingPeriod,
     TimerProfile,
     TimerProfileInput,
-    TimerProfileRegistry, DeskPosition,
+    TimerProfileRegistry,
+    DeskPosition
 )
 
-from ..desk_reminder import get_saved_preferences, reminder_functionality, is_forced_standup_reminder, check_height
+from ..desk_reminder import (
+    get_saved_preferences,
+    reminder_functionality,
+    is_forced_standup_reminder,
+    check_height
+)
+
 from ..desk_reminder import enable_reminder
 
 router = APIRouter(prefix="/desk", tags=["desk"])
