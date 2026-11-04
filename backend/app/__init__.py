@@ -7,8 +7,7 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .dependencies import get_current_user
-# from .internal import admin
-from .routers import desk, items, users, auth
+from .routers import desk, user, auth
 from .routers.admin import users as admin_users, desks as admin_desks
 
 try:
@@ -49,21 +48,13 @@ def make_app(lifespan):
         lifespan=lifespan,
     )
 
-    app.include_router(users.router)
-    app.include_router(items.router)
+    app.include_router(user.router)
     app.include_router(desk.router)
     app.include_router(auth.router)
 
     app.include_router(admin_users.router)
     app.include_router(admin_desks.router)
 
-    # app.include_router(
-    #     admin.router,
-    #     prefix="/admin",
-    #     tags=["admin"],
-    #     dependencies=[Depends(get_current_user)],
-    #     responses={418: {"description": "I'm a teapot"}},
-    # )
 
     @app.get("/")
     async def root():
