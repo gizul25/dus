@@ -6,8 +6,7 @@ import os
 import pymongo
 from fastapi import Depends, FastAPI
 
-from .dependencies import get_query_token, get_token_header
-from .internal import admin
+from .dependencies import get_query_token
 from .routers import desk, items, users
 from .routers.admin import users as admin_users, desks as admin_desks
 
@@ -57,14 +56,6 @@ def make_app(lifespan):
 
     app.include_router(admin_users.router)
     app.include_router(admin_desks.router)
-
-    app.include_router(
-        admin.router,
-        prefix="/admin",
-        tags=["admin"],
-        dependencies=[Depends(get_token_header)],
-        responses={418: {"description": "I'm a teapot"}},
-    )
 
     @app.get("/")
     async def root():
