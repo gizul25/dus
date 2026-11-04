@@ -1,15 +1,16 @@
-<script>
+<script lang="ts">
     import { goto } from '$app/navigation'
     import * as Card from '#lib/components/ui/card/index.ts';
+    import * as ToggleGroup from '#lib/components/ui/toggle-group/index.ts'
     import { Input } from '#lib/components/ui/input/index.ts';
     import { Label } from '#lib/components/ui/label/index.ts';
     import { Checkbox } from '#lib/components/ui/checkbox/index.ts';
     import { Button } from '#lib/components/ui/button/index.ts';
-	import { Description } from '#lib/components/ui/alert-dialog/index.ts';
 
     let email = $state('');
     let password = $state('');
     let rememberMe = $state(false);
+    let mode = $state<'user' | 'admin'>('user');
     let errorMessage = $state('');
 
 
@@ -18,7 +19,7 @@
         errorMessage = '';
 
         try {
-            const response = await fetch('http://localhost:8000/auth/login', {
+            const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -27,7 +28,8 @@
                 body: JSON.stringify({
                     email: email,
                     password: password,
-                    remember_me: rememberMe
+                    remember_me: rememberMe,
+                    mode: mode
                     })
             });
 
@@ -39,7 +41,12 @@
             }
 
             console.log('Login successful', data)
-            await goto('/test/login');
+
+            if (mode === 'admin') {
+                await goto('/admin/dashboard');
+            }
+            else 
+                await goto('/placeholder_user_page');
         }
 
         catch (error) {
@@ -53,58 +60,53 @@
     
 </script>
 
-<main class="flex min-h-screen items-center justify-center">
+<main class="flex min-h-screen items-center justify-center bg-secondary"
+      class:dark={mode === 'admin'}>
+
     <Card.Root class="w-full max-w-md">
-        <Card.Header>
+        <Card.Header class="text-center">
             <Card.Title>
-                Log In
+                Log In As
             </Card.Title>
-            <Card.Description>
-                Enter your credentials
-            </Card.Description>
         </Card.Header>
         <Card.Content>
-            <form onsubmit={handleLogin}>
-                <Label for="email">Email</Label>
-                <Input id="email" type="email" required bind:value={email} />
+            <form onsubmit={handleLogin} class="space-y-6">
+            <div class="flex justify-center pb-6">
+                <ToggleGroup.Root type="single" variant="outline" value={mode}
+                                  onValueChange={(value) => { if (value === 'user' || value === 'admin') {mode = value}}}>
+                    <ToggleGroup.Item value="user">User</ToggleGroup.Item>
+                    <ToggleGroup.Item value="admin">Admin</ToggleGroup.Item>
+                </ToggleGroup.Root>
+            </div>
 
-                <Label for="password">Password</Label>
-                <Input id="password" type="password" required bind:value={password} />
-
+                <div class="space-y-2">
+                    <Label for="email">Email</Label>
+                    <Input id="email" type="email" required bind:value={email} />
+                </div>
                 
-                <Label for="rememberMe"> 
-                    <Checkbox id="rememberMe" bind:checked={rememberMe} />
-                    Remember me
-                </Label>
+                <div class="space-y-2">
+                    <Label for="password">Password</Label>
+                    <Input id="password" type="password" required bind:value={password} />
+                </div>
+                
 
-                <Button type="submit">Login</Button>
+                <div class="space-y-2">
+                    <Label for="rememberMe"> 
+                        <Checkbox id="rememberMe" bind:checked={rememberMe} />
+                        Remember me
+                    </Label>
+                </div>
 
+                {#if errorMessage}
+                    <p role="alert" class="text-center text-destructive">{errorMessage}</p>
+                {/if}
 
+                <div class="flex justify-center">
+                    <Button type="submit">Log In</Button>
+                </div>
             </form>
         </Card.Content>
     </Card.Root>
 </main>
 
-<!-- 
-<main>
-    <h1 class="text-3xl">Login</h1>
-
-    {#if errorMessage}
-        <p class="error">{errorMessage}</p>
-    {/if}
-
-    <form onsubmit={handleLogin}>
-        <label for="email">Email</label>
-        <input id="email" type="email" required bind:value={email} />
-
-        <label for="password">Password</label>
-        <input id="password" type="password" required bind:value={password}/>
-
-        <input type="checkbox" id="rememberMe" name="rememberMe" bind:checked={rememberMe}/>
-        <label for="rememberMe">Remember Me</label>
-
-        <button type="submit">Login</button>
-
-    </form>
-</main> -->
 

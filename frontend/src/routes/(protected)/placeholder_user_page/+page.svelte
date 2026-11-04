@@ -7,7 +7,7 @@
 
 	onMount(async () => {
 		try {
-			const response = await fetch('http://localhost:8000/auth/me', { credentials: 'include' });
+			const response = await fetch('/api/user/me', { credentials: 'include' });
 
 			const data = await response.json();
 
@@ -24,7 +24,7 @@
 
 	async function handleLogout() {
 		try {
-			const response = await fetch('http://localhost:8000/auth/logout', {
+			const response = await fetch('/api/auth/logout', {
 				method: 'POST',
 				credentials: 'include'
 			});
@@ -44,7 +44,7 @@
 <main>
 	<h1>My Page</h1>
 	{#if user}
-		<p>Welcome, {user.fname} {user.lname}!</p>
+		<p>Welcome, {user.first_name} {user.last_name}!</p>
 		<p>Role: {user.role}</p>
 	{:else if errorMessage}
 		<p>{errorMessage}</p>

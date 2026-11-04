@@ -1,35 +1,34 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { goto } from '$app/navigation';
-    import type { LayoutProps } from '../$types';
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import type { LayoutProps } from '../$types';
 
-    let { children }: LayoutProps = $props();
-    let loading = $state(true);
+	let { children }: LayoutProps = $props();
+	let loading = $state(true);
 
-    onMount(async () => {
-        try {
-            const response = await fetch('http://localhost:8000/auth/me', { credentials: 'include'});
+	onMount(async () => {
+		try {
+			const response = await fetch('/api/user/me', { credentials: 'include' });
 
-            if (response.status === 401) {
-                await goto('/login');
-                return;
-            }
+			if (response.status === 401) {
+				await goto('/login');
+				return;
+			}
 
-            if (!response.ok) {
-                throw new Error('Could not verify authentication')
-            }
+			if (!response.ok) {
+				throw new Error('Could not verify authentication');
+			}
 
-            loading = false;
-        }
-        catch (error) {
-            console.error('Authentication check failed:', error);
-            await goto('/login');
-        }
-    });
+			loading = false;
+		} catch (error) {
+			console.error('Authentication check failed:', error);
+			await goto('/login');
+		}
+	});
 </script>
 
 {#if loading}
-    <p>Authenticating...</p>
+	<p>Authenticating...</p>
 {:else}
-    {@render children()}
+	{@render children()}
 {/if}
