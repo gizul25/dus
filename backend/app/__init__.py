@@ -11,11 +11,6 @@ from .internal import admin
 from .routers import desk, items, users
 from .routers.admin import users as admin_users, desks as admin_desks
 
-try:
-    from .ws import ws_app
-except ModuleNotFoundError:
-    ws_app = None
-
 
 logging.basicConfig(
     level=logging.INFO,
@@ -53,7 +48,6 @@ def make_app(lifespan):
 
     app.include_router(users.router)
     app.include_router(items.router)
-    app.include_router(desk.router)
 
     app.include_router(admin_users.router)
     app.include_router(admin_desks.router)
