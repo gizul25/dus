@@ -48,6 +48,7 @@ def make_app(lifespan):
 
     app.include_router(users.router)
     app.include_router(items.router)
+    app.include_router(desk.router)
 
     app.include_router(admin_users.router)
     app.include_router(admin_desks.router)
