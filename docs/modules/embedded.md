@@ -48,3 +48,13 @@ openssl s_client -connect localhost:8883 -CAfile certs/$MQTT_SERVER/ca.crt -key 
 ```
 
 Cert validation fails on mosquitto_sub side, which seems to fail to verify server cert. `--insecure` fixes.
+
+For curious ones, here's some relevant resources:
+- https://www.nongnu.org/lwip/2_1_x/group__dns.html
+- https://www.nongnu.org/lwip/2_0_x/group__mqtt.html
+- https://hyring.com/learn/raspberry-pi/light-sensor (that light sensor is relative)
+- https://source.coderefinery.org/sdm-edu/phce-2026
+- https://github.com/raspberrypi/pico-examples/tree/master/pico_w/wifi/mqtt
+- https://mosquitto.org/
+- https://github.com/eclipse-mosquitto/mosquitto/tree/master
+- https://mosquitto.org/man/mosquitto-conf-5.html
