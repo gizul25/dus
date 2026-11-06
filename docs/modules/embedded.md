@@ -13,13 +13,17 @@ set -x CLIENT_CN pico123
 mosquitto -c mosquitto.conf
 set -x MQTT_SERVER ametrine.test
 set -x SERVER_CN ametrine.test
-mosquitto_sub -h $SERVER_CN --cafile certs/$MQTT_SERVER/ca.crt --key certs/$MQTT_SERVER/client.key --cert certs/$MQTT_SERVER/client.crt -t 'test/topic' -v
-mosquitto_pub -h $SERVER_CN --cafile certs/$MQTT_SERVER/ca.crt --key certs/$MQTT_SERVER/client.key --cert certs/$MQTT_SERVER/client.crt -t 'test/topic' -m 'hello world'
+# add --insecure if using IP for MQTT_SERVER
+mosquitto_sub -h $MQTT_SERVER --cafile certs/$SERVER_CN/ca.crt --key certs/$SERVER_CN/client.key --cert certs/$SERVER_CN/client.crt -t 'test/topic' -v
+mosquitto_pub -h $MQTT_SERVER --cafile certs/$SERVER_CN/ca.crt --key certs/$SERVER_CN/client.key --cert certs/$SERVER_CN/client.crt -t 'test/topic' -m 'hello world'
 # build project and flash
+
+mosquitto_sub -h $MQTT_SERVER --cafile certs/$SERVER_CN/ca.crt --key certs/$SERVER_CN/client.key --cert certs/$SERVER_CN/client.crt -t 'pico/pico123/sensors' -v --insecure
 ```
 
 - `mosquitto_sub` verifies server certificate CN to make sure server certificate is valid, which produces a lot of silent and annoying errors on local networks. Using IP addresses is brutal, so you have to use DNS. For example, even for localhost, you have to use `localhost` name instead of 127.0.0.1. Also, domains with `.local` are handled uniquely with mDNS, and I wanted to avoid that and use just DNS. 
 - So server cert must have `CN=` field with domain, not IP, and it should be the one used to connect to the server. Else, you'll get server certificate validation errors, which often appear as opaque errors. Adding `--insecure` works as bypass for `mosquitto_sub` for example, if needed, but it's just to verify the issue.
+- I have updated code, so MQTT_SERVER can be IP or DNS, and SERVER_CN is always DNS, so it is possible to not run DNS and just provide IP to Pico, but still have certs working. As in, do DNS resolution kinda at compilation time. But this only applies to Pico, and `mosquitto_sub` and `mosquitto_pub` commands are still very picky about hostname.
 
 Testing:
 - Hotspot with WIFI_SSID and WIFI_PASSWORD set

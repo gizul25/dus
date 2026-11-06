@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Initialise pico_sdk from installed location
@@ -29,58 +29,70 @@ set(PICO_BOARD pico_w CACHE STRING "Board type")
 include(pico_sdk_import.cmake)
 
 include(config.cmake)
-set(MQTT_CERT_PATH ${CMAKE_CURRENT_LIST_DIR}/certs/${MQTT_SERVER})
+set(MQTT_CERT_PATH ${CMAKE_CURRENT_LIST_DIR}/certs/${SERVER_CN})
 set(MQTT_CERT_INC mqtt_client.inc)
 
-project(mqtt-test C CXX ASM)
+project(embedded C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
+add_executable(embedded
+    main.cpp
+    i2c_bus.cpp
+    shtc3.cpp
+    light.cpp
+    mqtt.cpp
+    sensor_mqtt.cpp
+)
 
-add_executable(mqtt-test mqtt-test.cpp )
-
-pico_set_program_name(mqtt-test "mqtt-test")
-pico_set_program_version(mqtt-test "0.1")
+pico_set_program_name(embedded "embedded")
+pico_set_program_version(embedded "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(mqtt-test 1)
-pico_enable_stdio_usb(mqtt-test 0)
+pico_enable_stdio_uart(embedded 1)
+pico_enable_stdio_usb(embedded 0)
 
-# Add the standard library to the build
-target_link_libraries(mqtt-test
-        pico_stdlib)
+target_compile_options(embedded PRIVATE -O0)
 
 # Add the standard include files to the build
-target_include_directories(mqtt-test PRIVATE
-        ${CMAKE_CURRENT_LIST_DIR}
+target_include_directories(embedded PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}
 )
 
 # Add any user requested libraries
-target_link_libraries(mqtt-test 
+target_link_libraries(embedded 
     hardware_adc
+    hardware_i2c
     pico_cyw43_arch_lwip_threadsafe_background
     pico_lwip_mqtt
     pico_mbedtls
     pico_lwip_mbedtls
-        )
+    pico_stdlib
+)
 
-target_compile_definitions(mqtt-test PRIVATE
+target_compile_definitions(embedded PRIVATE
+    PICO_DEFAULT_WS2812_PIN=6
+)
+
+target_compile_definitions(embedded PRIVATE
     WIFI_SSID=\"${WIFI_SSID}\"
     WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
     MQTT_SERVER=\"${MQTT_SERVER}\"
-    )
+    SERVER_CN=\"${SERVER_CN}\"
+    MQTT_CLIENT_NAME=\"${MQTT_CLIENT_NAME}\"
+)
 
 if (EXISTS "${MQTT_CERT_PATH}/${MQTT_CERT_INC}")
-    target_compile_definitions(mqtt-test PRIVATE
+    target_compile_definitions(embedded PRIVATE
         MQTT_CERT_INC=\"${MQTT_CERT_INC}\" # contains the tls certificates for MQTT_SERVER needed by the client
         ALTCP_MBEDTLS_AUTHMODE=MBEDTLS_SSL_VERIFY_REQUIRED
-        )
-    target_include_directories(mqtt-test PRIVATE
+    )
+    target_include_directories(embedded PRIVATE
         ${MQTT_CERT_PATH}
-        )
+    )
 endif()
 
-pico_add_extra_outputs(mqtt-test)
+pico_add_extra_outputs(embedded)
 
