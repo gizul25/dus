@@ -91,8 +91,8 @@
                 
 
                 <div class="space-y-2">
-                    <Label for="rememberMe"> 
-                        <Checkbox id="rememberMe" bind:checked={rememberMe} />
+                    <Label for="remember-me"> 
+                        <Checkbox id="remember-me" bind:checked={rememberMe} />
                         Remember me
                     </Label>
                 </div>
