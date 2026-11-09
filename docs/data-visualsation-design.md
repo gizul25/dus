@@ -16,7 +16,7 @@ The page list up all relevant informations of any desk.
 |                                       |
 -----------------------------------------
 ```
-Selection of a desk via Dropdown menu.
+Selection of a desk via Dropdown menu. 
 Given information:
 - Desk ID
 - Status
