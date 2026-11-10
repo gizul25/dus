@@ -140,6 +140,7 @@ class DeskStatus(BaseModel):
     timer_overdue: bool
     reminder_due: bool
     last_reading_at: datetime | None
+    current_user_id: str | None
 
 
 class DeskTracker:
@@ -158,6 +159,7 @@ class DeskTracker:
         self.pending_position_since: datetime | None = None
         self.reminder_triggered = False
         self.current_period: SittingPeriod | None = None
+        self.current_user_id = None
 
     def update_profile(self, profile: TimerProfile) -> None:
         self.profile = profile
@@ -228,6 +230,7 @@ class DeskTracker:
             timer_overdue=(target_seconds is not None and self.position_seconds >= target_seconds),
             reminder_due=reminder_due,
             last_reading_at=self.last_reading_at,
+            current_user_id=self.current_user_id,
         )
 
     def _commit_position_change(self, new_position: DeskPosition, timestamp: datetime) -> None:
@@ -265,3 +268,22 @@ class DeskTracker:
         if height_cm >= self.profile.standing_min_height_cm:
             return DeskPosition.STANDING
         return None
+    
+    def checkin(self, user_id: str) -> bool:
+        if self.current_user_id is not None:
+            return False
+        # user = find(user_id)
+        # if user.current_desk_id != self.desk_id:
+            # desk = find(user.current_desk_id)
+            # desk.checkout(user_id)
+        # self.current_user_id = user_id
+        # user.current_desk_id = desk_id
+        return True
+        
+    def checkout(self, user_id: str) -> bool:
+        if self.current_user_id is None:
+            return False
+        # user = find(user_id)
+        # self.current_user_id = None
+        # user.current_desk_id = None
+        return True

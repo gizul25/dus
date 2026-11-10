@@ -87,3 +87,97 @@ def test_desk_api_profile_and_readings_endpoints_work():
     assert status_response.json()["target_seconds"] == 120
     assert history_response.status_code == 200
     assert len(history_response.json()) >= 1
+
+def test_tracker_checkin_normal():
+    # user = {id: 1}
+    # desk = {id: 1}
+    # assert user.current_desk_id == None
+    # assert desk.current_user_id == None
+    # desk.checkin(user.id)
+    # assert user.current_desk_id == desk.id
+    # assert desk.current_user_id == user.id
+    pass
+
+def test_tracker_checkin_busy():
+    # user = {id: 1}
+    # user2 = {id: 2}
+    # desk = {id: 1}
+
+    # assert user.current_desk_id == None
+    # assert user2.current_desk_id == None
+    # assert desk.current_user_id == None
+
+    # desk.checkin(user.id)
+
+    # assert user.current_desk_id == desk.id
+    # assert desk.current_user_id == user.id
+
+    # desk.checkin(user2.id)
+
+    # assert user.current_desk_id == desk.id
+    # assert desk.current_user_id == user.id
+    # assert user2.current_user_id == None
+    pass
+
+def test_tracker_checkin_move():
+    # user = {id: 1}
+    # desk = {id: 1}
+    # desk2 = {id: 2}
+
+    # assert user.current_desk_id == None
+    # assert desk.current_user_id == None
+    # assert desk2.current_user_id == None
+
+    # desk.checkin(user.id)
+
+    # assert user.current_desk_id == desk.id
+    # assert desk.current_user_id == user.id
+
+    # desk2.checkin(user.id)
+
+    # assert user.current_desk_id == desk2.id
+    # assert desk.current_user_id == None
+    # assert user2.current_user_id == user.id
+    pass
+
+def test_tracker_checkout_normal():
+    # user = {id: 1}
+    # desk = {id: 1}
+
+    # assert user.current_desk_id == None
+    # assert desk.current_user_id == None
+
+    # desk.checkin(user.id)
+    # desk.checkout(user.id)
+
+    # assert user.current_desk_id == None
+    # assert desk.current_user_id == None
+    pass
+
+def test_tracker_checkout_empty():
+    # user = {id: 1}
+    # desk = {id: 1}
+
+    # assert user.current_desk_id == None
+    # assert desk.current_user_id == None
+
+    # desk.checkout(user.id)
+
+    # assert user.current_desk_id == None
+    # assert desk.current_user_id == None
+    pass
+
+def test_tracker_checkout_twice():
+    # user = {id: 1}
+    # desk = {id: 1}
+
+    # assert user.current_desk_id == None
+    # assert desk.current_user_id == None
+
+    # desk.checkin(user.id)
+    # desk.checkout(user.id)
+    # desk.checkout(user.id)
+
+    # assert user.current_desk_id == None
+    # assert desk.current_user_id == None
+    pass

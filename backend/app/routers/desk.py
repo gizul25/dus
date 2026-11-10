@@ -99,3 +99,15 @@ async def read_sitting_periods(limit: int | None = None) -> list[SittingPeriod]:
 @router.get("/status", response_model=DeskStatus)
 async def read_status() -> DeskStatus:
     return tracker.status()
+
+
+@router.post("/checkin", response_model=bool)
+async def checkin():
+    user_id = None # TODO: user auth wrapper
+    return tracker.checkin(user_id)
+
+
+@router.post("/checkout", response_model=bool)
+async def checkout():
+    user_id = None # TODO: user auth wrapper
+    return tracker.checkout(user_id)
