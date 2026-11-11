@@ -7,8 +7,10 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .dependencies import get_current_user
-from .routers import desk, user, auth
+from .routers import telemetry, desk, user, auth
+
 from .routers.admin import users as admin_users, desks as admin_desks
+from .ws import ws_app
 
 try:
     from .ws import ws_app
@@ -48,6 +50,7 @@ def make_app(lifespan):
         lifespan=lifespan,
     )
 
+    app.include_router(telemetry.router)
     app.include_router(user.router)
     app.include_router(desk.router)
     app.include_router(auth.router)
@@ -55,7 +58,7 @@ def make_app(lifespan):
     app.include_router(admin_users.router)
     app.include_router(admin_desks.router)
 
-
+    
     @app.get("/")
     async def root():
         return {"message": "Hello from backend!"}
