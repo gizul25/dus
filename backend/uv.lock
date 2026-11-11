@@ -86,6 +86,11 @@ dependencies = [
     { name = "pytest" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "aiokafka", specifier = ">=0.14.0" },
@@ -95,6 +100,9 @@ requires-dist = [
     { name = "pymongo", specifier = ">=4.19.0" },
     { name = "pytest", specifier = ">=9.2.0" },
 ]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=8.0.0" }]
 
 [[package]]
 name = "certifi"

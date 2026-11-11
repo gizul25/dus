@@ -6,11 +6,15 @@ import os
 import pymongo
 from fastapi import Depends, FastAPI
 
-from .dependencies import get_query_token, get_token_header
-from .internal import admin
-from .routers import desk, items, users
+from .dependencies import get_query_token
+from .routers import telemetry, desk, items, users
 from .routers.admin import users as admin_users, desks as admin_desks
+from .ws import ws_app
 
+try:
+    from .ws import ws_app
+except ModuleNotFoundError:
+    ws_app = None
 
 logging.basicConfig(
     level=logging.INFO,
@@ -46,20 +50,13 @@ def make_app(lifespan):
         lifespan=lifespan,
     )
 
+    app.include_router(telemetry.router)
     app.include_router(users.router)
     app.include_router(items.router)
     app.include_router(desk.router)
 
     app.include_router(admin_users.router)
     app.include_router(admin_desks.router)
-
-    app.include_router(
-        admin.router,
-        prefix="/admin",
-        tags=["admin"],
-        dependencies=[Depends(get_token_header)],
-        responses={418: {"description": "I'm a teapot"}},
-    )
 
     @app.get("/")
     async def root():
