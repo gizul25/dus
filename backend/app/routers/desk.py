@@ -109,12 +109,12 @@ async def read_status() -> DeskStatus:
 
 
 @router.post("/{desk_id}/checkin", response_model=bool)
-async def checkin():
+async def checkin(desk_id: str):
     user_id = None # TODO: once, auth merges, use auth wrapper
     return check_in_out_system.checkin(desk_id, user_id)
 
 
 @router.post("/{desk_id}/checkout", response_model=bool)
-async def checkout():
+async def checkout(desk_id: str):
     user_id = None # TODO: once, auth merges, use auth wrapper
     return check_in_out_system.checkout(desk_id, user_id)
