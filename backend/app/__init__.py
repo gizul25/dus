@@ -6,15 +6,15 @@ import pymongo
 from fastapi import Depends, FastAPI
 
 from .dependencies import get_query_token, get_token_header
-from .routers.admin import users as admin_users, desks as admin_desks
-from .routers import items, desk
 from .desk_reminder import reminder
+from .routers import telemetry, desk, items, users
+from .routers.admin import users as admin_users, desks as admin_desks
+from .ws import ws_app
 
 try:
     from .ws import ws_app
 except ModuleNotFoundError:
     ws_app = None
-
 
 logging.basicConfig(
     level=logging.INFO,
@@ -50,6 +50,8 @@ def make_app(lifespan):
         lifespan=lifespan,
     )
 
+    app.include_router(telemetry.router)
+    app.include_router(users.router)
     app.include_router(items.router)
     app.include_router(desk.router)
     app.include_router(reminder)
