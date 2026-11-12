@@ -1,4 +1,3 @@
-
 from contextlib import asynccontextmanager
 import logging
 import os
@@ -6,7 +5,8 @@ import os
 import pymongo
 from fastapi import Depends, FastAPI
 
-from .dependencies import get_query_token
+from .dependencies import get_query_token, get_token_header
+from .desk_reminder import reminder
 from .routers import telemetry, desk, items, users
 from .routers.admin import users as admin_users, desks as admin_desks
 from .ws import ws_app
@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI):
 
 def make_app(lifespan):
     app = FastAPI(
-        dependencies=[Depends(get_query_token)],
+        ##dependencies=[Depends(get_query_token)],
         lifespan=lifespan,
     )
 
@@ -54,9 +54,10 @@ def make_app(lifespan):
     app.include_router(users.router)
     app.include_router(items.router)
     app.include_router(desk.router)
-
+    app.include_router(reminder)
     app.include_router(admin_users.router)
     app.include_router(admin_desks.router)
+
 
     @app.get("/")
     async def root():

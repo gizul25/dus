@@ -49,4 +49,3 @@ services:
     command: ./infra/kafka/dev.sh
     ports:
       - 9092:9092
-
