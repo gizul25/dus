@@ -7,8 +7,8 @@
 
 	let { user = $bindable(), isOpen = $bindable(), onSubmit } = $props();
 
-	function _onSubmit() {
-		const res = onSubmit(user);
+	async function _onSubmit() {
+		const res = await onSubmit(user);
 		if (res) {
 			isOpen = false;
 		}

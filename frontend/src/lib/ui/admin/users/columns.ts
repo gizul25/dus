@@ -3,13 +3,7 @@ import type { DataTableFeatures } from "#lib/ui/admin/table/data-table-features.
 import DataTableCheckbox from "./DataTableCheckbox.svelte";
 import DataTableEmailButton from "./DataTableEmailButton.svelte";
 import DataTableActions from "./DataTableActions.svelte";
-
-export type User = {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-};
+import type { User } from "#lib/api/admin/users.ts";
 
 const columnHelper = createColumnHelper<DataTableFeatures, User>();
 
