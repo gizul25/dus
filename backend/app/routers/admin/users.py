@@ -1,30 +1,43 @@
 import logging
 import uuid
-from typing import Optional, List
+from typing import Optional, List, Literal
+from argon2 import PasswordHasher
 from pydantic import BaseModel, Field
+from pymongo.errors import DuplicateKeyError
 from fastapi import APIRouter, Body, Request, Response, Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
-from ...dependencies import get_token_header
+from ...dependencies import get_current_admin
 
 logger = logging.getLogger(__name__)
 
-# TODO: add token dependency once auth is implemented
 router = APIRouter(
     prefix="/admin/users",
     tags=["admin"],
+    dependencies=[Depends(get_current_admin)],
     responses={404: {"description": "Not found"}},
 )
 
+ph = PasswordHasher()
+
 class User(BaseModel):
-    id: str = Field(default_factory=uuid.uuid4, alias="_id")
+    id: str = Field(alias="_id")
     first_name: str = Field(...)
     last_name: str = Field(...)
     email: str = Field(...)
+
+class UserCreate(BaseModel):
+    id: str = Field(default_factory=uuid.uuid4, alias="_id")
+    first_name: str
+    last_name: str 
+    email: str
+    password: str
+    role: Literal["user", "admin"] = "user"
 
 class UserUpdate(BaseModel):
     first_name: Optional[str]
     last_name: Optional[str]
     email: Optional[str]
+    role: Optional[str]
 
 @router.get("/", response_model=List[User])
 async def get_users(request: Request):
@@ -41,11 +54,15 @@ def get_user(id: str, request: Request):
     return user
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=str)
-def create_user(request: Request, user: User = Body(...)):
+def create_user(request: Request, user: UserCreate = Body(...)):
     col = request.app.db.users
+    hashed_password = ph.hash(user.password)
     user = jsonable_encoder(user)
-    new_user = col.insert_one(user)
-
+    user["password"] = hashed_password
+    try:
+        new_user = col.insert_one(user)
+    except DuplicateKeyError:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
     return new_user.inserted_id
 
 @router.put("/{id}", response_model=User)

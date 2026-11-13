@@ -4,10 +4,12 @@ import os
 
 import pymongo
 from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from .dependencies import get_query_token, get_token_header
+from .dependencies import get_current_user, get_query_token, get_token_header
+from .routers import telemetry, desk, items, user, auth
+
 from .desk_reminder import reminder
-from .routers import telemetry, desk, items, users
 from .routers.admin import users as admin_users, desks as admin_desks
 from .ws import ws_app
 
@@ -23,7 +25,6 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("lifespan starting")
@@ -31,6 +32,7 @@ async def lifespan(app: FastAPI):
     app.mongo_client = pymongo.MongoClient(os.environ["MONGODB_URL"])
     db_name = os.environ["DBNAME"]
     app.db = app.mongo_client[db_name]
+    app.db["users"].create_index("email", unique=True)
 
     logger.info("lifespan ready")
 
@@ -46,18 +48,17 @@ async def lifespan(app: FastAPI):
 
 def make_app(lifespan):
     app = FastAPI(
-        ##dependencies=[Depends(get_query_token)],
         lifespan=lifespan,
     )
 
     app.include_router(telemetry.router)
-    app.include_router(users.router)
-    app.include_router(items.router)
+    app.include_router(user.router)
     app.include_router(desk.router)
-    app.include_router(reminder)
+    app.include_router(auth.router)
     app.include_router(admin_users.router)
     app.include_router(admin_desks.router)
-
+    
+    app.include_router(reminder)
 
     @app.get("/")
     async def root():
@@ -67,3 +68,10 @@ def make_app(lifespan):
 
 
 backend_app = make_app(lifespan)
+backend_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
