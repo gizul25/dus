@@ -26,6 +26,7 @@ services:
     environment:
       MONGODB_URL: mongodb://root:password@database:27017/
       DBNAME: appdb
+      JWT_SECRET: tDfPmnb4Cb-EDjp0kk7QEgj7MwbcjliScxwM-QV1R-c
     ports:
       - 8000:8000
   ws:
@@ -49,4 +50,3 @@ services:
     command: ./infra/kafka/dev.sh
     ports:
       - 9092:9092
-
