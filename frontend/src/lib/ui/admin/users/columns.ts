@@ -48,6 +48,11 @@ export const columns = columnHelper.columns([
         size: 300,
         maxSize: 300,
     }),
+    columnHelper.accessor("role", {
+        header: "Role",
+        size: 200,
+        maxSize: 200,
+    }),
     columnHelper.display({
         id: "actions",
         // @ts-expect-error: A workaround for proper column sizing, because this value just gets passed to CSS, so it can be not only number.

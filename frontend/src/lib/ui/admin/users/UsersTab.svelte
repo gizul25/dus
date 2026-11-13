@@ -20,7 +20,9 @@
 		editingUser = {
 			firstName: '',
 			lastName: '',
-			email: ''
+			email: '',
+			password: '',
+			role: 'user'
 		};
 		createDialogIsOpen = true;
 	}

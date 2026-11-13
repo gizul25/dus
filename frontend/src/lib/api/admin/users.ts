@@ -3,13 +3,34 @@ export type User = {
     firstName: string;
     lastName: string;
     email: string;
+    password?: string;
+    role: string;
 };
+
+export const ROLES = ["user", "admin"];
 
 export type UserJson = {
     _id: string;
     first_name: string;
     last_name: string;
     email: string;
+    role: string;
+};
+
+export type UserCreateJson = {
+    _id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    role: string;
+};
+
+export type UserUpdateJson = {
+    first_name: string;
+    last_name: string;
+    email: string;
+    role: string;
 };
 
 function deserializeUser(user: UserJson): User {
@@ -17,16 +38,28 @@ function deserializeUser(user: UserJson): User {
         id: user._id,
         email: user.email,
         firstName: user.first_name,
-        lastName: user.last_name
+        lastName: user.last_name,
+        role: user.role
     }
 }
 
-function serializeUser(user: User): UserJson {
+function serializeUserCreate(user: User): UserCreateJson {
     return {
         _id: user.id,
-        email: user.email,
         first_name: user.firstName,
-        last_name: user.lastName
+        last_name: user.lastName,
+        email: user.email,
+        password: user.password!,
+        role: user.role,
+    }
+}
+
+function serializeUserUpdate(user: User): UserUpdateJson {
+    return {
+        first_name: user.firstName,
+        last_name: user.lastName,
+        email: user.email,
+        role: user.role,
     }
 }
 
@@ -45,7 +78,7 @@ export async function getUser(id: string): Promise<User> {
 }
 
 export async function createUser(user: User): Promise<string> {
-    const body = serializeUser(user);
+    const body = serializeUserCreate(user);
     const res = await fetch(
         `/api/admin/users/`,
         {
@@ -59,7 +92,7 @@ export async function createUser(user: User): Promise<string> {
 }
 
 export async function updateUser(user: User): Promise<User> {
-    const body = serializeUser(user);
+    const body = serializeUserUpdate(user);
     const res = await fetch(
         `/api/admin/users/${user.id}`,
         {

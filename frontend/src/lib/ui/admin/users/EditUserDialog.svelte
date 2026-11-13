@@ -4,6 +4,8 @@
 	import { Button, buttonVariants } from '#lib/components/ui/button/index.js';
 	import { Input } from '#lib/components/ui/input/index.js';
 	import { Label } from '#lib/components/ui/label/index.js';
+	import * as Select from '#lib/components/ui/select/index.js';
+	import { ROLES } from '#lib/api/admin/users.ts';
 
 	let { user = $bindable(), isOpen = $bindable(), onSubmit } = $props();
 
@@ -37,6 +39,21 @@
 				<Field.Field>
 					<Label for="email-1">Email</Label>
 					<Input id="email-1" name="email" bind:value={user.email} />
+				</Field.Field>
+				<Field.Field>
+					<Label for="role-1">Role</Label>
+					<Select.Root type="single" bind:value={user.role}>
+						<Select.Trigger class="w-20" id="role-1" name="role-1">
+							<Select.Value />
+						</Select.Trigger>
+						<Select.Content align="start">
+							<Select.Group>
+								{#each ROLES as role (role)}
+									<Select.Item value={role} label={role}>{role}</Select.Item>
+								{/each}
+							</Select.Group>
+						</Select.Content>
+					</Select.Root>
 				</Field.Field>
 			</Field.Group>
 			<Dialog.Footer>
