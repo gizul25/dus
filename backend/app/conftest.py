@@ -21,7 +21,9 @@ async def app():
     async def lifespan(app: FastAPI):
         logger.info('lifespan starting')
 
-        app.mongo_client = pymongo.MongoClient(os.environ["MONGODB_URL"])
+        app.mongo_client = pymongo.MongoClient(os.environ.get(
+            "MONGODB_URL",
+            "mongodb://root:password@localhost:27017/?authSource=admin"))
         db_name = "testdb"
         app.mongo_client.drop_database(db_name)
         app.db = app.mongo_client[db_name]
