@@ -3,8 +3,8 @@
 
 	let { isOpen = $bindable(), onDelete } = $props();
 
-    function onSubmit() {
-        onDelete()
+    async function onSubmit() {
+        await onDelete()
         isOpen = false;
     }
 </script>

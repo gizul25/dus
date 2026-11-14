@@ -1,38 +1,16 @@
 <script lang="ts">
 	import DataTable from '../table/DataTable.svelte';
 	import AddUserDialog from './AddUserDialog.svelte';
-	import { columns, type User } from './columns.js';
+	import { columns } from './columns.js';
 	import DeleteUserDialog from './DeleteUserDialog.svelte';
 	import { setContext } from 'svelte';
 	import EditUserDialog from './EditUserDialog.svelte';
 	import { Button } from '#lib/components/ui/button/index.js';
+	import { createUser, deleteUser, getUsers, updateUser, type User } from '#lib/api/admin/users.js';
 
-	let data: User[] = $state([
-		{
-			id: '728ed52f',
-			firstName: 'Real',
-			lastName: 'Name',
-			email: 'rn@example.com'
-		},
-		{
-			id: '489e1d42',
-			firstName: 'Banger',
-			lastName: 'Lastname',
-			email: 'banger@gmail.com'
-		}
-		// ...[...Array(25).keys()].map((_) => ({
-		// 	id: '489e1d42',
-		// 	firstName: 'Purely',
-		// 	lastName: 'Surely',
-		// 	email: 'psurely@gmail.com'
-		// }))
-	]);
+	let data: User[] | null = $state(null);
 
-	let editingUser: User = $state({
-		firstName: '',
-		lastName: '',
-		email: ''
-	});
+	let editingUser: User | null = $state(null);
 	let createDialogIsOpen = $state(false);
 	let deleteDialogIsOpen = $state(false);
 	let editDialogIsOpen = $state(false);
@@ -42,44 +20,45 @@
 		editingUser = {
 			firstName: '',
 			lastName: '',
-			email: ''
+			email: '',
+			password: '',
+			role: 'user'
 		};
 		createDialogIsOpen = true;
 	}
 
 	function openEditUserDetails(id: string) {
 		console.log('openEditUserDetails', id);
-		editingUser = data.find((u) => u.id === id);
+		editingUser = data!.find((u) => u.id === id);
 		editDialogIsOpen = true;
 	}
 
 	function openDeleteUser(id: string) {
 		console.log('openDeleteUser', id);
-		editingUser = data.find((u) => u.id === id);
+		editingUser = data!.find((u) => u.id === id);
 		deleteDialogIsOpen = true;
 	}
 
-	function createNewUser(user: User) {
-		data = [
-			...data,
-			{
-				...user,
-				id: '127312391'
-			}
-		];
+	async function createNewUser(user: User) {
+		await createUser(user);
+		data = await getUsers();
 		return true;
 	}
 
-	function onEditUser(newUser) {
-		let userEntry = data.find((u) => u.id === newUser.id);
-		userEntry = newUser;
-		data = [...data];
+	async function onEditUser(newUser: User) {
+		await updateUser(newUser);
+		data = await getUsers();
 		return true;
 	}
 
-	function onDelete() {
-		data = data.filter((u) => u.id !== editingUser.id);
+	async function onDelete() {
+		await deleteUser(editingUser!.id);
+		data = await getUsers();
 	}
+
+	$effect(async () => {
+		data = await getUsers();
+	});
 
 	setContext('actionContext', {
 		openCreateNewUser,
@@ -88,11 +67,15 @@
 	});
 </script>
 
-<AddUserDialog bind:user={editingUser} bind:isOpen={createDialogIsOpen} {createNewUser} />
-<DeleteUserDialog bind:isOpen={deleteDialogIsOpen} {onDelete} />
-<EditUserDialog bind:user={editingUser} bind:isOpen={editDialogIsOpen} onSubmit={onEditUser} />
-<DataTable searchText="Filter emails..." searchColumn="email" {data} {columns}>
-	{#snippet headerChildren()}
-		<Button variant="outline" onclick={openCreateNewUser}>Add user</Button>
-	{/snippet}
-</DataTable>
+{#if data !== null}
+	<AddUserDialog bind:user={editingUser} bind:isOpen={createDialogIsOpen} {createNewUser} />
+	<DeleteUserDialog bind:isOpen={deleteDialogIsOpen} {onDelete} />
+	<EditUserDialog bind:user={editingUser} bind:isOpen={editDialogIsOpen} onSubmit={onEditUser} />
+	<DataTable searchText="Filter emails..." searchColumn="email" {data} {columns}>
+		{#snippet headerChildren()}
+			<Button variant="outline" onclick={openCreateNewUser}>Add user</Button>
+		{/snippet}
+	</DataTable>
+{:else}
+	<p>Loading...</p>
+{/if}
