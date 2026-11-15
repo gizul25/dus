@@ -3,11 +3,11 @@ import logging
 import os
 
 import pymongo
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .dependencies import get_current_user, get_query_token, get_token_header
-from .routers import telemetry, desk, items, user, auth
+from .dependencies import get_current_user
+from .routers import telemetry, desk, user, auth
 
 from .desk_reminder import reminder
 from .routers.admin import users as admin_users, desks as admin_desks
