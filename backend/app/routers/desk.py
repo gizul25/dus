@@ -102,6 +102,34 @@ def record_reading(reading: HeightReading, request: Request) -> DeskStatus:
     position = desk_status.position
     if DeskPosition.STANDING == position:
         check_height(desk_status.height_cm, tracker.profile.standing_min_height_cm)
+
+    # inside record_reading
+    db = request.app.db
+    now = reading.recorded_at
+    position = desk_status.position.value  # "sitting" | "standing"
+
+    open_period = db.periods.find_one(
+        {"user_id": str(current_user["_id"]), "desk_id": current_user["desk_id"], "ended_at": None},
+    )
+    if open_period and open_period["position"] != position:
+        # close previous, start new
+        db.periods.update_one(
+            {"_id": open_period["_id"]},
+            {"$set": {"ended_at": now}},
+        )
+        open_period = None
+    if open_period is None:
+        db.periods.insert_one({
+            "_id": str(uuid.uuid4()),
+            "user_id": str(current_user["_id"]),
+            "desk_id": current_user["desk_id"],
+            "position": position,
+            "started_at": now,
+            "ended_at": None,
+            "temperature_c": reading.temperature_c,
+            "height_cm": reading.height_cm,
+        })
+    
     return desk_status
 
 

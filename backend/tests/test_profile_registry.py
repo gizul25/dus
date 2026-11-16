@@ -63,7 +63,7 @@ def test_desk_api_profile_and_readings_endpoints_work():
     client = TestClient(backend_app)
 
     profile_response = client.put(
-        "/desk/profile?token=jessica",
+        "/desk/profile",
         json={
             "seated_max_height_cm": 70,
             "standing_min_height_cm": 100,
@@ -73,11 +73,11 @@ def test_desk_api_profile_and_readings_endpoints_work():
         },
     )
     reading_response = client.post(
-        "/desk/readings?token=jessica",
+        "/desk/readings",
         json={"height_cm": 65, "recorded_at": "2026-10-28T12:00:00+00:00"},
     )
-    status_response = client.get("/desk/status?token=jessica")
-    history_response = client.get("/desk/measurements?token=jessica")
+    status_response = client.get("/desk/status")
+    history_response = client.get("/desk/measurements")
 
     assert profile_response.status_code == 200
     assert profile_response.json()["sitting_target_minutes"] == 2
