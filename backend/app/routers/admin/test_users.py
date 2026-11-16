@@ -32,7 +32,7 @@ async def test_login_as_admin(client, test_admin):
     assert response.status_code == 200
     response = await client.get("/admin/users/")
     assert response.status_code == 200
-    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com'}]
+    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com', 'role': 'admin'}]
 
 @pytest.mark.anyio
 async def test_user_post(client, test_admin):
@@ -90,7 +90,7 @@ async def test_user_delete(client, test_admin):
 
     response = await client.get("/admin/users/")
     assert response.status_code == 200
-    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com'}]
+    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com', 'role': 'admin'}]
 
 @pytest.mark.anyio
 async def test_user_delete_fail(client, test_admin):
@@ -102,7 +102,7 @@ async def test_user_delete_fail(client, test_admin):
 
     response = await client.get("/admin/users/")
     assert response.status_code == 200
-    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com'}]
+    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com', 'role': 'admin'}]
 
 @pytest.mark.anyio
 async def test_user_put(client, test_admin):

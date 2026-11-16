@@ -7,8 +7,8 @@
 
 	let { desk = $bindable(), isOpen = $bindable(), createNewDesk } = $props();
 
-	function onSubmit() {
-		const res = createNewDesk(desk);
+	async function onSubmit() {
+		const res = await createNewDesk(desk);
 		if (res) {
 			isOpen = false;
 		}

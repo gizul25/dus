@@ -5,26 +5,12 @@
 	import AddDeskDialog from './AddDeskDialog.svelte';
 	import DeleteDeskDialog from './DeleteDeskDialog.svelte';
 	import EditDeskDialog from './EditDeskDialog.svelte';
-	import { columns, type Desk } from './columns.js';
+	import { columns } from './columns.js';
+	import { createDesk, deleteDesk, getDesks, updateDesk, type Desk } from '#lib/api/admin/desks.js';
 
-	let data: Desk[] = $state([
-		{
-			id: '728ed52f',
-			name: "Desk 1"
-		},
-		{
-			id: '489e1d42',
-			name: "Desk 2"
-		},
-		// ...[...Array(25).keys()].map((_) => ({
-		// 	id: '489e1d42',
-		// 	name: "Desk1 2"
-		// }))
-	]);
+	let data: Desk[] | null = $state(null);
 
-	let editingDesk: Desk = $state({
-		name: '',
-	});
+	let editingDesk: Desk | null = $state(null);
 	let createDialogIsOpen = $state(false);
 	let deleteDialogIsOpen = $state(false);
 	let editDialogIsOpen = $state(false);
@@ -32,44 +18,43 @@
 	function openCreateNewDesk() {
 		console.log('openCreateNewDesk');
 		editingDesk = {
-			name: '',
+			name: ''
 		};
 		createDialogIsOpen = true;
 	}
 
 	function openEditDeskDetails(id: string) {
-		console.log('openEditDeskDetails', id);
-		editingDesk = data.find((u) => u.id === id);
+		console.log('openEditDeskDetails', id, data);
+		editingDesk = data!.find((u) => u.id === id);
 		editDialogIsOpen = true;
 	}
 
 	function openDeleteDesk(id: string) {
 		console.log('openDeleteDesk', id);
-		editingDesk = data.find((u) => u.id === id);
+		editingDesk = data!.find((u) => u.id === id);
 		deleteDialogIsOpen = true;
 	}
 
-	function createNewDesk(desk: Desk) {
-		data = [
-			...data,
-			{
-				...desk,
-				id: '127312391'
-			}
-		];
+	async function createNewDesk(desk: Desk) {
+		await createDesk(desk);
+		data = await getDesks();
 		return true;
 	}
 
-	function onEditDesk(newDesk) {
-		let deskEntry = data.find((u) => u.id === newDesk.id);
-		deskEntry = newDesk;
-		data = [...data];
+	async function onEditDesk(newDesk: Desk) {
+		await updateDesk(newDesk);
+		data = await getDesks();
 		return true;
 	}
 
-	function onDelete() {
-		data = data.filter((u) => u.id !== editingDesk.id);
+	async function onDelete() {
+		await deleteDesk(editingDesk!.id);
+		data = await getDesks();
 	}
+
+	$effect(async () => {
+		data = await getDesks();
+	})
 
 	setContext('actionContext', {
 		openCreateNewDesk,
@@ -78,11 +63,15 @@
 	});
 </script>
 
-<AddDeskDialog bind:desk={editingDesk} bind:isOpen={createDialogIsOpen} {createNewDesk} />
-<DeleteDeskDialog bind:isOpen={deleteDialogIsOpen} {onDelete} />
-<EditDeskDialog bind:desk={editingDesk} bind:isOpen={editDialogIsOpen} onSubmit={onEditDesk} />
-<DataTable searchText="Filter desks..." searchColumn="name" {data} {columns}>
-	{#snippet headerChildren()}
-		<Button variant="outline" onclick={openCreateNewDesk}>Add desk</Button>
-	{/snippet}
-</DataTable>
+{#if data !== null}
+	<AddDeskDialog bind:desk={editingDesk} bind:isOpen={createDialogIsOpen} {createNewDesk} />
+	<DeleteDeskDialog bind:isOpen={deleteDialogIsOpen} {onDelete} />
+	<EditDeskDialog bind:desk={editingDesk} bind:isOpen={editDialogIsOpen} onSubmit={onEditDesk} />
+	<DataTable searchText="Filter desks..." searchColumn="name" {data} {columns}>
+		{#snippet headerChildren()}
+			<Button variant="outline" onclick={openCreateNewDesk}>Add desk</Button>
+		{/snippet}
+	</DataTable>
+{:else}
+	<p>Loading...</p>
+{/if}

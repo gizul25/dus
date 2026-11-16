@@ -24,6 +24,7 @@ class User(BaseModel):
     first_name: str = Field(...)
     last_name: str = Field(...)
     email: str = Field(...)
+    role: str = Field(...)
 
 class UserCreate(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
