@@ -2,11 +2,7 @@ import { createColumnHelper, renderComponent } from "@tanstack/svelte-table";
 import type { DataTableFeatures } from "#lib/ui/admin/table/data-table-features.js";
 import DataTableCheckbox from "./DataTableCheckbox.svelte";
 import DataTableActions from "./DataTableActions.svelte";
-
-export type Desk = {
-    id: string;
-    name: string;
-};
+import type { Desk } from "#lib/api/admin/desks.ts";
 
 const columnHelper = createColumnHelper<DataTableFeatures, Desk>();
 
@@ -35,8 +31,8 @@ export const columns = columnHelper.columns([
     }),
     columnHelper.accessor("id", {
         header: "Desk ID",
-        size: 300,
-        maxSize: 300,
+        size: 350,
+        maxSize: 350,
     }),
     columnHelper.accessor("name", {
         header: "Name",

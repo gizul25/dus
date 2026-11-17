@@ -24,6 +24,7 @@ class User(BaseModel):
     first_name: str = Field(...)
     last_name: str = Field(...)
     email: str = Field(...)
+    role: str = Field(...)
     desk_id: str | None = None
 
 class UserCreate(BaseModel):

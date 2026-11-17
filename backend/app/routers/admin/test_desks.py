@@ -42,6 +42,11 @@ async def test_login_as_admin(client, test_admin):
     assert response.json() == []
 
 @pytest.mark.anyio
+async def test_login_no_admin_fail(client):
+    response = await client.get("/admin/desks/")
+    assert response.status_code == 401
+
+@pytest.mark.anyio
 async def test_desk_post(client, test_admin):
     await test_login_as_admin(client, test_admin)
     response = await client.post("/admin/desks/", json={
@@ -51,6 +56,25 @@ async def test_desk_post(client, test_admin):
     print(response.text)
     assert response.status_code == 201
     assert response.json() == "123123123"
+
+    response = await client.get("/admin/desks/")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+
+@pytest.mark.anyio
+async def test_desk_post_no_id(client, test_admin):
+    await test_login_as_admin(client, test_admin)
+    response = await client.get("/admin/desks/")
+    assert response.status_code == 200
+    assert response.json() == []
+
+    response = await client.post("/admin/desks/", json={
+        "name": "desk1",
+    })
+    print(response.text)
+    assert response.status_code == 201
+    desk_id = response.json()
+    assert desk_id != ""
 
     response = await client.get("/admin/desks/")
     assert response.status_code == 200
