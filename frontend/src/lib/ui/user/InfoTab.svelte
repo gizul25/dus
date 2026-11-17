@@ -28,8 +28,7 @@
 		format: (v: number) => string;
 	}
 
-	const fmtDuration = (min: number) =>
-		`${Math.floor(min / 60)}h ${String(Math.round(min % 60)).padStart(2, '0')}m`;
+	const fmtDuration = (min: number) => `${Math.floor(min / 60)}h ${String(Math.round(min % 60)).padStart(2, '0')}m`;
 	const fmtTemp = (v: number) => `${v.toFixed(1)} °C`;
 	const fmtInt = (v: number) => String(Math.round(v));
 
@@ -77,7 +76,6 @@
 	let seeded = $state(false);
 
 	let pollTimer: ReturnType<typeof setTimeout> | null = null;
-	let inFlight = false;
 
 	const allSelected = $derived(desks.length > 0 && selectedIds.length === desks.length);
 	const someSelected = $derived(selectedIds.length > 0 && !allSelected);
@@ -98,13 +96,13 @@
 			.toUpperCase()
 	);
 	const totalTracked = $derived((currentUser?.standingMin ?? 0) + (currentUser?.sittingMin ?? 0));
-	const standShare = $derived(
-		totalTracked > 0 ? ((currentUser?.standingMin ?? 0) / totalTracked) * 100 : 0
-	);
+	const standShare = $derived(totalTracked > 0 ? ((currentUser?.standingMin ?? 0) / totalTracked) * 100 : 0);
 	const donutCircumference = 2 * Math.PI * 40;
 
 	$effect(() => {
-		if (headerCheckbox) headerCheckbox.indeterminate = someSelected;
+		if (headerCheckbox) {
+      headerCheckbox.indeterminate = someSelected;
+    }
 	});
 
 	$effect(() => {
@@ -124,10 +122,11 @@
 				errorMessage = 'Session expired. Please log in again.';
 				return null;
 			}
-			if (!meRes.ok || !desksRes.ok) return null;
+			if (!meRes.ok || !desksRes.ok) {
+        return null;
+      }
 			return { me: await meRes.json(), desks: await desksRes.json() };
 		} catch (err) {
-			console.error('Dashboard fetch failed', err);
 			return null;
 		}
 	}
@@ -168,15 +167,15 @@
 	}
 
 	async function refreshDashboard() {
-		if (inFlight) return;
-		if (document.visibilityState === 'hidden') return;
-		inFlight = true;
+		if (document.visibilityState === 'hidden') {
+      return;
+    }
 		try {
 			const result = await fetchDashboard();
-			if (result) applyData(result);
-		} finally {
-			inFlight = false;
-		}
+			if (result) {
+        applyData(result);
+      }
+		} catch {}
 	}
 
 	function startPolling() {
@@ -232,25 +231,26 @@
 </script>
 
 <svelte:head>
-	<title>Desk usage overview</title>
+	<title>
+    Desk usage overview
+  </title>
 </svelte:head>
 
 <div class="min-h-screen bg-background p-6 text-foreground">
 	{#if loading}
 		<div class="flex min-h-[60vh] items-center justify-center">
-			<p class="text-sm text-muted-foreground">Loading dashboard…</p>
+			<p class="text-sm text-muted-foreground">
+        Loading dashboard…
+      </p>
 		</div>
 	{:else if errorMessage}
-		<div
-			class="mx-auto mt-16 max-w-md rounded-xl border border-border bg-card p-6 text-center text-card-foreground shadow-sm"
-		>
+		<div class="mx-auto mt-16 max-w-md rounded-xl border border-border bg-card p-6 text-center text-card-foreground shadow-sm">
 			<p class="mb-4 text-sm text-destructive">{errorMessage}</p>
 			<div class="flex justify-center gap-3">
 				<button
 					type="button"
 					onclick={loadDashboard}
-					class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90"
-				>
+					class="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90">
 					Retry
 				</button>
 				<a href="/" class="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted">
@@ -259,13 +259,9 @@
 			</div>
 		</div>
 	{:else if currentUser}
-		<section
-			class="mb-5 flex flex-wrap items-center gap-5 rounded-xl border border-border bg-card p-5 text-card-foreground shadow-sm md:gap-8"
-		>
+		<section class="mb-5 flex flex-wrap items-center gap-5 rounded-xl border border-border bg-card p-5 text-card-foreground shadow-sm md:gap-8">
 			<div class="flex min-w-56 flex-1 items-center gap-3">
-				<div
-					class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground"
-				>
+				<div class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
 					{initials}
 				</div>
 				<div>
@@ -275,36 +271,19 @@
 			</div>
 
 			<div class="flex flex-wrap gap-3">
-				<div
-					class="flex min-w-28 flex-col gap-1 rounded-lg border border-border bg-muted/50 px-3.5 py-2.5"
-				>
-					<span class="text-[10px] uppercase tracking-widest text-muted-foreground"
-						>Standing time</span
-					>
-					<span class="text-lg font-semibold tabular-nums text-chart-2"
-						>{fmtDuration(currentUser.standingMin)}</span
-					>
+				<div class="flex min-w-28 flex-col gap-1 rounded-lg border border-border bg-muted/50 px-3.5 py-2.5">
+					<span class="text-[10px] uppercase tracking-widest text-muted-foreground">Standing time</span>
+					<span class="text-lg font-semibold tabular-nums text-chart-2">{fmtDuration(currentUser.standingMin)}</span>
 				</div>
-				<div
-					class="flex min-w-28 flex-col gap-1 rounded-lg border border-border bg-muted/50 px-3.5 py-2.5"
-				>
-					<span class="text-[10px] uppercase tracking-widest text-muted-foreground"
-						>Sitting time</span
-					>
-					<span class="text-lg font-semibold tabular-nums text-chart-1"
-						>{fmtDuration(currentUser.sittingMin)}</span
-					>
+				<div class="flex min-w-28 flex-col gap-1 rounded-lg border border-border bg-muted/50 px-3.5 py-2.5">
+					<span class="text-[10px] uppercase tracking-widest text-muted-foreground">Sitting time</span>
+					<span class="text-lg font-semibold tabular-nums text-chart-1">{fmtDuration(currentUser.sittingMin)}</span>
 				</div>
-				<div
-					class="flex min-w-28 flex-col gap-1 rounded-lg border border-border bg-muted/50 px-3.5 py-2.5"
-				>
-					<span class="text-[10px] uppercase tracking-widest text-muted-foreground"
-						>Current desk</span
-					>
+				<div class="flex min-w-28 flex-col gap-1 rounded-lg border border-border bg-muted/50 px-3.5 py-2.5">
+					<span class="text-[10px] uppercase tracking-widest text-muted-foregroun">Current desk</span>
 					<span
 						class="text-lg font-semibold tabular-nums"
-						class:text-muted-foreground={!currentUser.deskId}
-					>
+						class:text-muted-foreground={!currentUser.deskId}>
 						{currentUser.deskId ?? 'none'}
 					</span>
 				</div>
@@ -312,7 +291,14 @@
 			<div class="flex w-full items-center justify-center gap-6 md:justify-start">
 				<div class="relative flex shrink-0 items-center justify-center">
 					<svg viewBox="0 0 100 100" class="h-32 w-32 -rotate-90">
-						<circle cx="50" cy="50" r="40" fill="none" stroke="var(--chart-1)" stroke-width="14" />
+						<circle 
+              cx="50" 
+              cy="50"
+              r="40" 
+              fill="none" 
+              stroke="var(--chart-1)" 
+              stroke-width="14" 
+            />
 						<circle
 							cx="50"
 							cy="50"
@@ -324,15 +310,9 @@
 							class="transition-[stroke-dasharray] duration-300"
 						/>
 					</svg>
-					<div
-						class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center"
-					>
-						<span class="text-base font-bold tabular-nums leading-none"
-							>{standShare.toFixed(0)}%</span
-						>
-						<span class="mt-1 text-[9px] uppercase tracking-widest text-muted-foreground"
-							>standing</span
-						>
+					<div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+						<span class="text-base font-bold tabular-nums leading-none">{standShare.toFixed(0)}%</span>
+						<span class="mt-1 text-[9px] uppercase tracking-widest text-muted-foreground">standing</span>
 					</div>
 				</div>
 
@@ -358,10 +338,12 @@
 		<div class="grid grid-cols-1 gap-5 lg:grid-cols-[1.65fr_1fr]">
 			<section class="rounded-xl border border-border bg-card p-5 text-card-foreground shadow-sm">
 				<header class="mb-3 flex items-baseline justify-between gap-3">
-					<h2 class="text-sm font-semibold">Desks in the system</h2>
-					<span class="text-xs tabular-nums text-muted-foreground"
-						>{selectedIds.length} / {desks.length} selected</span
-					>
+					<h2 class="text-sm font-semibold">
+            Desks in the system
+          </h2>
+					<span class="text-xs tabular-nums text-muted-foreground">
+            {selectedIds.length} / {desks.length} selected
+          </span>
 				</header>
 
 				<div class="overflow-x-auto">
@@ -378,29 +360,24 @@
 										aria-label="Select all desks"
 									/>
 								</th>
-								<th
-									class="whitespace-nowrap px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
-									>Desk</th
-								>
-								<th
-									class="whitespace-nowrap px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
-									>Occupation</th
-								>
+								<th class="whitespace-nowrap px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Desk
+                </th>
+								<th class="whitespace-nowrap px-2 py-2 text-left text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Occupation
+                </th>
 								{#each metrics as m (m.key)}
-									<th
-										class="whitespace-nowrap px-2 py-2 text-right text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
-									>
-										<label
-											class="inline-flex cursor-pointer select-none items-center gap-1.5"
-											title="Show “{m.label}” in the chart"
-										>
-											<input
-												type="checkbox"
+									<th class="whitespace-nowrap px-2 py-2 text-right text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+										<label class="inline-flex cursor-pointer select-none items-center gap-1.5"
+											title="Show “{m.label}” in the chart">
+											<input type="checkbox"
 												class="h-3.5 w-3.5 cursor-pointer accent-primary"
 												checked={activeMetrics.includes(m.key)}
 												onchange={() => toggleMetric(m.key)}
 											/>
-											<span>{m.short}</span>
+											<span>
+                        {m.short}
+                      </span>
 										</label>
 									</th>
 								{/each}
@@ -409,15 +386,14 @@
 
 						<tbody>
 							{#each desks as desk (desk.id)}
-								<tr
-									class="border-b border-border/60 transition-colors hover:bg-muted/40 {desk.id ===
-									currentUser.deskId
+								<tr class="border-b border-border/60 transition-colors hover:bg-muted/40 
+                  {
+                    desk.id === currentUser.deskId
 										? 'bg-primary/5 shadow-[inset_3px_0_0_var(--primary)]'
-										: ''}"
-								>
+										: ''
+                  }">
 									<td class="px-1 py-2">
-										<input
-											type="checkbox"
+										<input type="checkbox"
 											class="h-3.5 w-3.5 cursor-pointer accent-primary"
 											checked={selectedIds.includes(desk.id)}
 											onchange={() => toggleRow(desk.id)}
@@ -427,21 +403,17 @@
 									<td class="whitespace-nowrap px-2 py-2 font-semibold tabular-nums">{desk.id}</td>
 									<td class="whitespace-nowrap px-2 py-2">
 										{#if desk.occupied}
-											<span
-												class="inline-block rounded-full border border-destructive/30 bg-destructive/15 px-2.5 py-1 text-[10px] font-bold tracking-wider text-destructive"
-												>OCCUPIED</span
-											>
+											<span class="inline-block rounded-full border border-destructive/30 bg-destructive/15 px-2.5 py-1 text-[10px] font-bold tracking-wider text-destructive">
+                        OCCUPIED
+                      </span>
 										{:else}
-											<span
-												class="inline-block rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-1 text-[10px] font-bold tracking-wider text-emerald-600 dark:text-emerald-400"
-												>FREE</span
-											>
+											<span class="inline-block rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-1 text-[10px] font-bold tracking-wider text-emerald-600 dark:text-emerald-400">
+                        FREE
+                      </span>
 										{/if}
 									</td>
 									{#each metrics as m (m.key)}
-										<td
-											class="whitespace-nowrap px-2 py-2 text-right tabular-nums text-foreground/80"
-										>
+										<td class="whitespace-nowrap px-2 py-2 text-right tabular-nums text-foreground/80">
 											{m.format(desk[m.key])}
 										</td>
 									{/each}
@@ -454,9 +426,9 @@
 			<section class="rounded-xl border border-border bg-card p-5 text-card-foreground shadow-sm">
 				<header class="mb-3 flex items-baseline justify-between gap-3">
 					<h2 class="text-sm font-semibold">Comparison</h2>
-					<span class="text-xs tabular-nums text-muted-foreground"
-						>{selectedDesks.length} desk(s)</span
-					>
+					<span class="text-xs tabular-nums text-muted-foreground">
+            {selectedDesks.length} desk(s)
+          </span>
 				</header>
 
 				{#if selectedDesks.length === 0}
@@ -469,29 +441,27 @@
 					</p>
 				{:else}
 					<div class="px-1 pt-2">
-						<div
-							class="flex h-64 items-stretch gap-3.5 pb-0.5"
-							style="background-image: repeating-linear-gradient(to top, color-mix(in oklch, var(--border) 60%, transparent) 0 1px, transparent 1px 25%)"
-						>
+						<div class="flex h-64 items-stretch gap-3.5 pb-0.5"
+							style="background-image: repeating-linear-gradient(to top, color-mix(in oklch, var(--border) 60%, transparent) 0 1px, transparent 1px 25%)">
 							{#each selectedDesks as desk (desk.id)}
 								<div class="flex min-w-0 flex-1 flex-col gap-2">
 									<div class="flex min-h-0 flex-1 items-end justify-center gap-1">
 										{#each activeMetrics as key (key)}
 											{@const metric = metricMap[key]}
 											{@const h = Math.max(2, (desk[key] / maxByMetric[key]) * 100)}
-											<div
-												class="min-w-1 max-w-[18px] flex-1 rounded-t-[4px] transition-[height] duration-300"
+											<div class="min-w-1 max-w-[18px] flex-1 rounded-t-[4px] transition-[height] duration-300"
 												style={`height:${h}%;background:${metric.color}`}
-												title={`${desk.id} · ${metric.label}: ${metric.format(desk[key])}`}
-											></div>
+												title={`${desk.id} · ${metric.label}: ${metric.format(desk[key])}`}/>
 										{/each}
 									</div>
-									<span
-										class="text-center text-[11px] tabular-nums text-muted-foreground {desk.id ===
-										currentUser.deskId
+									<span	class="text-center text-[11px] tabular-nums text-muted-foreground 
+                    {
+                      desk.id === currentUser.deskId
 											? 'font-bold text-primary'
-											: ''}">{desk.id}</span
-									>
+											: ''
+                    }">
+                      {desk.id}
+                  </span>
 								</div>
 							{/each}
 						</div>
@@ -500,20 +470,17 @@
 
 				<div class="mt-4 flex flex-wrap gap-1.5 border-t border-border pt-3.5">
 					{#each metrics as m (m.key)}
-						<button
-							type="button"
-							class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition-colors {activeMetrics.includes(
-								m.key
-							)
+						<button type="button"
+							class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] transition-colors 
+              {
+                activeMetrics.includes(m.key)
 								? 'border-border bg-muted text-foreground'
-								: 'border-border/60 text-muted-foreground hover:border-border'}"
-							onclick={() => toggleMetric(m.key)}
-						>
-							<span
-								class="h-2 w-2 rounded-full transition-opacity"
+								: 'border-border/60 text-muted-foreground hover:border-border'
+              }"
+							onclick={() => toggleMetric(m.key)}>
+							<span class="h-2 w-2 rounded-full transition-opacity"
 								class:opacity-30={!activeMetrics.includes(m.key)}
-								style={`background:${m.color}`}
-							></span>
+								style={`background:${m.color}`}/>
 							{m.label}
 						</button>
 					{/each}

@@ -12,8 +12,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 
-# ---------------------------------------------------------------- models
-
 class MeResponse(BaseModel):
     user_id: str
     name: str
@@ -34,8 +32,6 @@ class DeskResponse(BaseModel):
     warnings: int
 
 
-# --------------------------------------------------------------- helpers
-
 def _to_aware_utc(dt: datetime | None) -> datetime | None:
     if dt is None:
         return None
@@ -49,8 +45,6 @@ def _minutes(period: dict[str, Any], now: datetime) -> float:
     ended = _to_aware_utc(period.get("ended_at")) or now
     return max(0.0, (ended - started).total_seconds() / 60.0)
 
-
-# ---------------------------------------------------------------- routes
 
 @router.get("/me", response_model=MeResponse)
 def get_my_stats(
@@ -88,7 +82,6 @@ def get_my_stats(
 def list_desk_stats(request: Request) -> list[DeskResponse]:
     db = request.app.db
 
-    # averages per desk from closed periods
     pipeline = [
         {"$match": {"ended_at": {"$ne": None}}},
         {"$addFields": {
