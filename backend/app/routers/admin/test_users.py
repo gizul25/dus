@@ -19,6 +19,7 @@ def test_admin(db):
         "email": "admin@example.com",
         "password": PasswordHasher().hash(password),
         "role": "admin",
+        "desk_id": "D-42",
     }
     db["users"].insert_one(user)
     return user
@@ -27,12 +28,12 @@ def test_admin(db):
 async def test_login_as_admin(client, test_admin):
     response = await client.post(
         "/auth/login",
-        json={"email": "admin@example.com", "password": "test123", "mode": "admin"},
+        json={"email": "admin@example.com", "password": "test123", "mode": "admin",  "desk_id": "D-42"},
     )
     assert response.status_code == 200
     response = await client.get("/admin/users/")
     assert response.status_code == 200
-    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com'}]
+    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com',  "desk_id": "D-42"}]
 
 @pytest.mark.anyio
 async def test_user_post(client, test_admin):
@@ -44,7 +45,8 @@ async def test_user_post(client, test_admin):
         "last_name": "tree",
         "email": "woody@supa.ch",
         "password": PasswordHasher().hash("password"),
-        "role": "user"
+        "role": "user",
+        "desk_id": "D-42",
     })
     print(response.text)
     assert response.status_code == 201
@@ -74,7 +76,8 @@ async def test_user_delete(client, test_admin):
         "last_name": "tree",
         "email": "woody@supa.ch",
         "password": PasswordHasher().hash("password"),
-        "role": "user"
+        "role": "user",  
+        "desk_id": "D-42"
     })
     print(response.text)
     assert response.status_code == 201
@@ -90,7 +93,7 @@ async def test_user_delete(client, test_admin):
 
     response = await client.get("/admin/users/")
     assert response.status_code == 200
-    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com'}]
+    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com',  "desk_id": "D-42"}]
 
 @pytest.mark.anyio
 async def test_user_delete_fail(client, test_admin):
@@ -102,7 +105,7 @@ async def test_user_delete_fail(client, test_admin):
 
     response = await client.get("/admin/users/")
     assert response.status_code == 200
-    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com'}]
+    assert response.json() == [{'_id': 'test-admin', 'first_name': 'Testing', 'last_name': 'Admin', 'email': 'admin@example.com',  "desk_id": "D-42"}]
 
 @pytest.mark.anyio
 async def test_user_put(client, test_admin):
@@ -114,7 +117,8 @@ async def test_user_put(client, test_admin):
         "last_name": "tree",
         "email": "woody@supa.ch",
         "password": PasswordHasher().hash("password"),
-        "role": "user"
+        "role": "user",  
+        "desk_id": "D-42"
     })
     print(response.text)
     assert response.status_code == 201
@@ -129,7 +133,8 @@ async def test_user_put(client, test_admin):
         "last_name": "tree",
         "email": "woody@supa.ch",
         "password": PasswordHasher().hash("password"),
-        "role": "user"
+        "role": "user",  
+        "desk_id": "D-42"
     })
     print(response.text)
     assert response.status_code == 200
@@ -145,7 +150,8 @@ async def test_user_put_fail(client, test_admin):
         "last_name": "tree",
         "email": "woody@supa.ch",
         "password": PasswordHasher().hash("password"),
-        "role": "user"
+        "role": "user",  
+        "desk_id": "D-42"
     })
     print(response.text)
     assert response.status_code == 201

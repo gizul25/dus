@@ -12,11 +12,10 @@ class UserProfile(BaseModel):
     email: str
     role: Literal["user", "admin"]
     mode: Literal["user", "admin"]
+    desk_id: str | None = None
 
 @router.get("/me", response_model=UserProfile)
 def get_me(request: Request, current_user: dict = Depends(get_current_user)):
     current_user["mode"] = request.state.login_mode
     current_user["id"] = str(current_user["_id"])
     return current_user
-
-

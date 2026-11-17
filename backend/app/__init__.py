@@ -34,6 +34,14 @@ async def lifespan(app: FastAPI):
     db_name = os.environ["DBNAME"]
     app.db = app.mongo_client[db_name]
     app.db["users"].create_index("email", unique=True)
+    app.db["periods"].create_index([("user_id", 1), ("started_at", -1)])
+    app.db["periods"].create_index([("ended_at", 1), ("desk_id", 1)])
+    app.db["periods"].create_index(                                        # invariant
+        [("user_id", 1)],
+        unique=True,
+        partialFilterExpression={"ended_at": None},
+        name="one_open_period_per_user",
+    )
 
     password = "test123"
     user = {
@@ -44,7 +52,7 @@ async def lifespan(app: FastAPI):
             "password": PasswordHasher().hash(password),
             "role": "admin",
     }
-    app.db["users"].insert_one(user)
+    app.db["users"].replace_one({"_id": user["_id"]}, user, upsert=True)
 
     logger.info("lifespan ready")
 

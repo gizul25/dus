@@ -1,9 +1,26 @@
+import pytest
+from argon2 import PasswordHasher
+
 from datetime import datetime, timedelta, timezone
 
 from fastapi.testclient import TestClient
 
+import app.routers.desk as desk_module
 from app import backend_app
 from app.desk_tracking import DeskTracker, HeightReading, TimerProfile, TimerProfileInput, TimerProfileRegistry
+
+
+@pytest.fixture
+def isolated_desk_state():
+    old_tracker = desk_module.tracker
+    old_registry = desk_module.profile_registry
+    desk_module.tracker = DeskTracker()
+    desk_module.profile_registry = TimerProfileRegistry(desk_module.tracker.profile)
+    try:
+        yield
+    finally:
+        desk_module.tracker = old_tracker
+        desk_module.profile_registry = old_registry
 
 
 def make_profile(name: str, sitting_minutes: int = 30) -> TimerProfileInput:
@@ -59,27 +76,48 @@ def test_tracker_requires_threshold_confirmation_before_switching_position():
     assert len(tracker.measurements.list()) == 3
 
 
-def test_desk_api_profile_and_readings_endpoints_work():
-    client = TestClient(backend_app)
+def test_desk_api_profile_and_readings_endpoints_work(isolated_desk_state):
+    with TestClient(backend_app) as client:
+        email = "desk-test@example.com"
+        password = "test123"
+        backend_app.db["users"].replace_one(
+            {"email": email},
+            {
+                "_id": "desk-test-user",
+                "first_name": "Desk",
+                "last_name": "Tester",
+                "email": email,
+                "password": PasswordHasher().hash(password),
+                "role": "user",
+            },
+            upsert=True,
+        )
 
-    profile_response = client.put(
-        "/desk/profile",
-        json={
-            "seated_max_height_cm": 70,
-            "standing_min_height_cm": 100,
-            "sitting_target_minutes": 2,
-            "standing_target_minutes": 5,
-            "position_confirmation_seconds": 0,
-        },
-    )
-    reading_response = client.post(
-        "/desk/readings",
-        json={"height_cm": 65, "recorded_at": "2026-10-28T12:00:00+00:00"},
-    )
-    status_response = client.get("/desk/status")
-    history_response = client.get("/desk/measurements")
+        login = client.post(
+            "/auth/login",
+            json={"email": email, "password": password, "mode": "user"},
+        )
+        assert login.status_code == 200, login.text
+
+        profile_response = client.put(
+            "/desk/profile",
+            json={
+                "seated_max_height_cm": 70,
+                "standing_min_height_cm": 100,
+                "sitting_target_minutes": 2,
+                "standing_target_minutes": 5,
+                "position_confirmation_seconds": 0,
+            },
+        )
+        reading_response = client.post(
+            "/desk/readings",
+            json={"height_cm": 65, "recorded_at": "2026-10-28T12:00:00+00:00"},
+        )
+        status_response = client.get("/desk/status")
+        history_response = client.get("/desk/measurements")
 
     assert profile_response.status_code == 200
+    print("PUT /desk/profile ->", profile_response.status_code, profile_response.json())
     assert profile_response.json()["sitting_target_minutes"] == 2
     assert reading_response.status_code == 200
     assert reading_response.json()["position"] == "sitting"
