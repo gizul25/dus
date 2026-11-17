@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 
 const hostname = "http://localhost:8080"
 
-// run add;.py
+// run add.py
 
 async function inputCredentialsAndLogin(page: Page, email: string, password: string)
 {
