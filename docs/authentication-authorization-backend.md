@@ -1,181 +1,71 @@
 # AA Page: backend design #31
 
-- OpenAPI specification writing
-- Research how to do authentication and authorization
+## High-level design
 
-## Sessions
+## Module features
 
-```YAML
-openapi: 3.0.0 # or whatever we're using
-info:
-  title: Authentication API (session)
-  version: 1.0.0
+- User accounts allow for the user to be able to change their desk preferences
+  - They can change the height, velocity and set specific settings as a profile
+    for their needs
+- User can choose a desk of choice which they want to work on
+  - To do that they can interact with the map interface
+  - If a desk is occupied the map interface will inform them that the desk in
+    question is busy
+- User can log into their account by providing the right credentials such as
+  first and last name and password
+- The interface allows users to report issues with their desk
 
-servers:
-  - url: # our server
+### Maybe?
 
-paths:
- /auth/login:
-  post:
-   summary: Log in
-   operationId: loginUser
-   requestBody:
-    required: true
-    content:
-     application/json:
-      schema: 
-       type: object
-       required:
-         - email
-         - password
-         - remember_me
-       properties:
-        email: 
-         type: string
-         format: email
-        password:
-         type: string
-        remember_me:
-         type: boolean 
-   responses:
-    "200":
-     description: successful login
-     headers:
-      Set-Cookie:
-       schema:
-        type: string
-     content:
-      application/json:
-       schema:
-        $ref: "#/components/schemas/User"
-    
-    "401":
-     description: Invalid email or password
-    
- /auth/account:
-  get:
-   description: returns the account associated with current session
-   operationId: getCurrentAccount
-   security:
-    - sessionCookie: []
-   responses:
-    "200":
-     description: current account returned with success
-     content:
-      application/json:
-       schema:
-        $ref: "#/components/schemas/User"
-    "401":
-     description: missing, invalid or expired session
-     
- 
- /auth/logout:
-  post: 
-   description: invalidates the current session and clears its cookie
-   operationId: logoutUser
-   security:
-    - sessionCookie: []
-   responses:
-    "204":
-     description: successful logout
-    "401":
-     description: missing or invalid session
-         
-         
-components:
- securitySchemes:
-  sessionCookie:
-   type: apiKey
-   in: cookie
-   name: session_id
-   
- schemas:
-  User:
-   type: object
-   required:
-    - id
-    - email
-    - role
-   properties:
-    id:
-     type: integer
-    email:
-     type: string
-     format: email
-    role:
-     type: string
-     enum:
-      - user
-      - admin
-     
-```
+- Users can put in comments on the desks they are using for co-workers to see
+  - Could be useful if they are not at their desk currently and want to notify
+    others on a certain matter
+- The users can view the amount of time they had spent while working on the desk
 
-### Flow
+## Module handling
 
-**On login:**
-2. Request with email and password is sent to backend
-3. Find user in DB and verify the hash
-4. Create a secure and random session ID
-5. Save session in DB (session ID hash, user ID and expiry time)
-6. Set browser cookie (browser receives the session ID in a cookie)
+- Authorization
+  - User can only log into their account by inputting the right data
+- Error handling
+  - Deny request if wrong or empty information is used
+- Testing - Vitest, Playwright, manual
 
-**On other requests:**
+## Use cases
 
-1. Request send
-2. Browser automatically includes the session cookie
-3. Backend validates the session
+- User logs into their account
+- User selects a desk to use
+- User sets up their profile for work
+- User changes their preferences in their settings
+- User sends an error report
+- User makes a comment(From the Maybe? section)
+- User views time spent on desk(From the Maybe? section)
 
-- user id, session id, expiry time
-- if invalid: 401 Unauthorized
+## Test cases
 
-4. For admin-only, checks user role
+- User successfully logs into their account
+- User successfully sets their preferences for the desk
+- User is unable to send an error report(insufficient)
+- User sends an error report successfully
+- User leaves a comment successfully
+- User is unable to leave a comment(insufficient)
+- User is able to select a desk to work on
+- User is unable to select a desk(busy or already chosen)
 
-- if invalid: 403 Forbidden
+## Dependencies
 
-5. Backend gets the user ID from the session
-2. Gets and returns needed data
+### Module
 
-### Cookies
+- Data visualization
+- Office map system
+- Frontend
+  - Web interface
+- Databases
+  - Error logs
+  - User accounts
 
-Attributes:
+### External
 
-- `HttpOnly` - browser stores, but never exposes it to `document.cookie` or JS
-  APIs
-- `Secure` - only send over HTTPS
-- `SameSite=Lax` - restricts cross-site sending (helps prevent CSRF)
-- `Max-Age`
-
-Cookies need to be:
-
-- **On successful login**: set
-- session_id - random and as hash in DB
-- httponly
-- secure
-- max_age -> 14/30 days (with remember me) or 8/12 h in seconds
-- **On requests**: read and validated
-- **On admin requests**: read, validate and check the role
-- **On logout**: invalidate the session and clear the cookie
-
-### Session
-
-1. Generate a secure and random session ID
-2. Send original session ID to the browser in `session_id` cookie
-3. Store a hash of session ID in the database
-4. On requests, has the cookie value and look up the corresponding session
-5. Verify that the session exists and has not expired
-
-### Database
-
-```JSON
-{     
-"session_id_hash": "...",
-"user_id": "...",           
-"created_at": "...",
-"expires_at": "..."
-}
-```
-
-OR
+- N/A
 
 ## JWT
 

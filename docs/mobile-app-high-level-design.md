@@ -1,5 +1,7 @@
 # Mobile app high-level design #5
 
+> Marked as obsolete.
+
 # Module features
 
 - All of the features as the web interface (due to nature of using web for UI)
