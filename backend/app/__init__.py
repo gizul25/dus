@@ -43,17 +43,6 @@ async def lifespan(app: FastAPI):
         name="one_open_period_per_user",
     )
 
-    password = "test123"
-    user = {
-            "_id": "test-admin",
-            "first_name": "Testing",
-            "last_name": "Admin",
-            "email": "admin@example.com",
-            "password": PasswordHasher().hash(password),
-            "role": "admin",
-    }
-    app.db["users"].replace_one({"_id": user["_id"]}, user, upsert=True)
-
     logger.info("lifespan ready")
 
     try:
