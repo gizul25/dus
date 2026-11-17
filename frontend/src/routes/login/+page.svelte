@@ -46,7 +46,7 @@
                 await goto('/admin/dashboard');
             }
             else 
-                await goto('/placeholder_user_page');
+                await goto('/dashboard');
         }
 
         catch (error) {
@@ -72,8 +72,7 @@
         <Card.Content>
             <form onsubmit={handleLogin} class="space-y-6">
             <div class="flex justify-center pb-6">
-                <ToggleGroup.Root type="single" variant="outline" value={mode}
-                                  onValueChange={(value) => { if (value === 'user' || value === 'admin') {mode = value}}}>
+                 <ToggleGroup.Root type="single" variant="outline" bind:value={mode}>
                     <ToggleGroup.Item value="user">User</ToggleGroup.Item>
                     <ToggleGroup.Item value="admin">Admin</ToggleGroup.Item>
                 </ToggleGroup.Root>
