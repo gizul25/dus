@@ -1,11 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const hostname = "http://localhost:8080"
+// const hostname = "http://localhost:8080"
+const hostname = "http://nginx:8080"
 
-// run add.py
-
-async function inputCredentialsAndLogin(page: Page, email: string, password: string)
-{
+async function inputCredentialsAndLogin(page: Page, email: string, password: string) {
     await page.getByRole('textbox', { name: 'Email' }).fill(email);
     await page.getByRole('textbox', { name: 'Password' }).fill(password);
     await page.getByRole('button', { name: 'Log In' }).click();
@@ -17,7 +15,7 @@ test('loginUser', async ({ page }) => {
     await page.waitForTimeout(1000);
     await expect(page.getByRole('radio', { name: 'User' })).toHaveAttribute('aria-checked', 'true');
     await expect(page.locator('main')).not.toContainClass('dark');
-    await inputCredentialsAndLogin(page, 'user@example.com', 'user123')
+    await inputCredentialsAndLogin(page, 'user@example.com', 'test123')
     await expect(page).toHaveURL(`${hostname}/dashboard`);
     await expect(page.getByRole('heading', { name: 'My Page'})).toBeVisible();
 });
@@ -38,7 +36,7 @@ test('loginAdmin', async ({ page }) => {
 test('logoutUser', async ({ page }) => {
     await page.goto(`${hostname}/login`);
     await page.waitForTimeout(1000);
-    await inputCredentialsAndLogin(page, 'user@example.com', 'user123');
+    await inputCredentialsAndLogin(page, 'user@example.com', 'test123');
     await expect(page).toHaveURL(`${hostname}/dashboard`);
     await expect(page.getByRole('button', { name: 'Logout' })).toBeVisible();
     await page.getByRole('button', { name: 'Logout' }).click();
@@ -61,7 +59,7 @@ test('loginUserAsAdmin', async ({ page }) => {
     await page.goto(`${hostname}/login`);
     await page.waitForTimeout(1000);
     await page.getByRole('radio', { name: 'Admin' }).click();
-    await inputCredentialsAndLogin(page, 'user@example.com', 'user123');
+    await inputCredentialsAndLogin(page, 'user@example.com', 'test123');
     await expect(page).toHaveURL(`${hostname}/login`);
     await expect(page.getByText('Admin access required')).toBeVisible();
     const response = await page.request.get(`${hostname}/api/user/me`);
@@ -81,7 +79,7 @@ test('unathenticatedAccess', async ({ page }) => {
 test('unauthorisedAccess', async ({ page }) => {
     await page.goto(`${hostname}/login`);
     await page.waitForTimeout(1000);
-    await inputCredentialsAndLogin(page, 'user@example.com', 'user123');
+    await inputCredentialsAndLogin(page, 'user@example.com', 'test123');
     await expect(page).toHaveURL(`${hostname}/dashboard`);
     await page.goto(`${hostname}/admin/dashboard`);
     await expect(page.getByRole('button', { name: 'Add user' })).not.toBeVisible();
