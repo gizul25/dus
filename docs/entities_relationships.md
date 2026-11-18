@@ -11,11 +11,11 @@
 - Password
 - Role: ['user', 'admin']
 - Status: ['online', 'away', 'do not disturb', 'offline']
-- WebSocket connections
 
 ID:
 - Used for login purposes (not sure)
 - Desk association
+- Anywhere in backend
 
 First name and last name used:
 - Dashboard to show the logged in user
@@ -26,29 +26,16 @@ Email and password:
 - Only used for logging in
 
 Role:
-- Admin role has access to admin login page, which has access to admin interface
-
-TODO: status can be timestamped and tracked for analytics
-TODO: should websockets be moved to a separate entity?
+- Admin role has access to admin dashboard page
 
 ### Actions
-
-TODO: check if create/update should return ID or the whole struct. 
 
 - Create user (data) -> ID
 - Update user (ID, data)
 - Delete user (ID)
 - Login (ID)
 - Logout (ID)
-- Set new desk session (ID, desk session ID)
 - Set status (ID, new status)
-- Add WebSocket connection (ID, WebSocket connection)
-- Remove WebSocket connection (ID, WebSocket connection)
-- Send multicast WebSocket message (ID, message)
-
-Set new desk session:
-- Setting to null removes the session
-Any errors are returned naturally, and are not specified in the return type.
 
 ### Events
 
@@ -56,6 +43,22 @@ Any errors are returned naturally, and are not specified in the return type.
 - On logged in (ID)
 - On logged out (ID)
 - On status changed (ID, old status, new status)
+
+## WebSocket connection
+
+### Data
+
+- ID
+- User ID
+
+### Actions
+
+- Add WebSocket connection (ID, user ID)
+- Remove WebSocket connection (ID)
+- Send multicast WebSocket message (ID, message)
+
+### Events
+
 - On WebSocket connection added (ID, WebSocket connection)
 - On WebSocket connection removed (ID, WebSocket connection)
 
@@ -67,10 +70,9 @@ Any errors are returned naturally, and are not specified in the return type.
 - Name
 - Min height
 - Max height
-- Current desk profile (can be null)
-- Profile autocorrection enabled
-
-TODO: desk profile and autocorrection have no events or actions
+- Current desk profile ID (can be null)
+- Pending desk profile ID (can be null)
+- Is desk profile autocorrection enabled
 
 ID:
 - Receiving MQTT packets
@@ -81,6 +83,8 @@ ID:
 - Create desk (data) -> ID
 - Update desk (ID, data)
 - Delete desk (ID)
+- Set new desk profile (desk profile ID)
+- Set desk profile autocorrection (ID, desk profile autocorrection enabled)
 
 - Request association with user. On success, creates new desk session.
 
@@ -89,6 +93,7 @@ ID:
 - On desk updated (ID, old desk data, new desk data)
 - On desk deleted (ID)
 - On desk profile changed (ID)
+- On desk profile target height reached (ID)
 
 On desk updated:
 - Event is triggered when name, min or max height is changed.
@@ -148,9 +153,9 @@ Notification sending will take "Desk session ID", get "User ID", and send notifi
 - ID
 - User ID
 - Sitting duration
-- Sitting desk profile
+- Main sitting desk profile
 - Standing duration
-- Standing desk profile
+- Main standing desk profile
 - Warning duration
 - Is Automatic
 
@@ -166,6 +171,7 @@ Notification sending will take "Desk session ID", get "User ID", and send notifi
 - User ID
 - Name
 - Desk height
+- Category: ['standing', 'sitting']
 - Enter desk profile threshold
 - Exit desk profile threshold
 
