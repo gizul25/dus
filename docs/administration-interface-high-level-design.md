@@ -1,5 +1,7 @@
 # Administration interface high-level design #8
 
+> Assigning workers to fix the task is out of scope.
+
 ## Module features
 
 - Special interface for the Administrator that allows them to monitor and manage the entire desk system and its users

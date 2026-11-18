@@ -21,6 +21,7 @@ What concrete data? Preliminary idea:
   - Current user
   - Voltage usage (from motor)
   - Error notifications (e.g. collisions)
+> Voltage usage might not be available.
 - Raspberry Pi Pico
   - Temperature
   - Humidity
