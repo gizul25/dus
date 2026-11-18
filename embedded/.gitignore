@@ -1,0 +1,8 @@
+/.cache
+build
+!.vscode/*
+config.cmake
+/certs/*
+!/certs/makecerts.sh
+!/certs/pub.sh
+!/certs/sub.sh
