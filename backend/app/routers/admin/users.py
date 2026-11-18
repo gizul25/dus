@@ -25,7 +25,7 @@ class User(BaseModel):
     last_name: str = Field(...)
     email: str = Field(...)
     role: str = Field(...)
-    desk_id: str | None = None
+    desk_id: Optional[str]
 
 class UserCreate(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
@@ -34,7 +34,7 @@ class UserCreate(BaseModel):
     email: str
     password: str
     role: Literal["user", "admin"] = "user"
-    desk_id: str | None = None
+    desk_id: Optional[str]
 
 class UserUpdate(BaseModel):
     first_name: Optional[str]

@@ -1,5 +1,5 @@
 # Data Visualsation Design
-The simplified version is simpler to imlement.
+The simplified version is simpler to implement.
 ## Frontend
 The page list up all relevant informations of any desk.  
 

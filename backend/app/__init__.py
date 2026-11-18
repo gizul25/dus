@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .dependencies import get_current_user
-from .routers import telemetry, desk, user, auth, dashboard
+from .routers import infoboard, telemetry, desk, user, auth
 
 from .desk_reminder import reminder
 from .routers.admin import users as admin_users, desks as admin_desks
@@ -66,7 +66,7 @@ def make_app(lifespan):
     app.include_router(auth.router)
     app.include_router(admin_users.router)
     app.include_router(admin_desks.router)
-    app.include_router(dashboard.router)
+    app.include_router(infoboard.router)
     
     app.include_router(reminder)
 
