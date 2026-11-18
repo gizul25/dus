@@ -23,6 +23,7 @@ Module responsible for:
 
 - Main: tap RFID reader with a card to occupy desk
 - Secondary: QR with mobile scanning (could have a simple sticker, could display QR on the little screen when something pressed)
+> QR code is obsolete.
 
 ### Desk Check-Out
 
