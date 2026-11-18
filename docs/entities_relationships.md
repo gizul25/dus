@@ -1,7 +1,5 @@
 # Entities
 
-TODO: message passing and events between modules
-
 ## User
 
 ### Data
@@ -12,7 +10,6 @@ TODO: message passing and events between modules
 - Email
 - Password
 - Role: ['user', 'admin']
-- Active desk session
 - Status: ['available', 'busy', 'offline']
     - TODO: any more statuses?
 - WebSocket connections
@@ -32,9 +29,11 @@ Email and password:
 Role:
 - Admin role has access to admin login page, which has access to admin interface
 
+TODO: status can be timestamped and tracked for analytics
+
 ### Actions
 
-TODO: check if create/update should return ID or the whole struct. Another way could be that all actions have no return type, and what you would usually return, would be an event. I am not sure about tradeoffs of both of these approaches.
+TODO: check if create/update should return ID or the whole struct. 
 
 - Create user (data) -> ID
 - Update user (ID, data)
@@ -51,14 +50,10 @@ Set new desk session:
 - Setting to null removes the session
 Any errors are returned naturally, and are not specified in the return type.
 
-TODO: missing check-in/check-out
-
 ### Events
 
 - On logged in (ID)
 - On logged out (ID)
-- On desk session started (ID, desk session ID)
-- On desk session ended (ID, desk session ID)
 - On status changed (ID, old status, new status)
 - On WebSocket connection added (ID, WebSocket connection)
 - On WebSocket connection removed (ID, WebSocket connection)
@@ -69,17 +64,14 @@ TODO: missing check-in/check-out
 
 - ID
 - Name
-- Associated desk session
-- Is Faulty
 - Min height
 - Max height
-- Current height (can be null)
 - Current desk profile (can be null) TODO: is it needed? but it's good if height drifts. But is it desired functionality? If the user used physical buttons, it would count it as drift and change it back to profile height.
 - Profile autocorrection enabled
 
 TODO: adjustments timeout (I forgot what I meant here)
-TODO: Is Faulty should be connected to desk issue system
 TODO: desk profile and autocorrection have no events or actions
+TODO: current height probably belongs to fetching desk REST API
 
 ID:
 - Receiving MQTT packets
@@ -90,8 +82,6 @@ ID:
 - Create desk (data) -> ID
 - Update desk (ID, data)
 - Delete desk (ID)
-- Check-in (ID, user ID) -> desk session ID
-- Check-out (ID, user ID)
 
 - Request association with user. On success, creates new desk session.
 
@@ -120,8 +110,15 @@ On desk updated:
 - Automatic timeout notification timestamp
 - Automatic timeout action timestamp
 
+### Actions
+
+- Check-in (user ID, desk ID) -> desk session ID
+- Check-out (user ID, desk ID)
+
 ### Events
 
+- On desk session started (ID)
+- On desk session ended (ID)
 - On automatic timeout notification timestamp (ID)
 - On automatic timeout action timestamp (ID)
 
