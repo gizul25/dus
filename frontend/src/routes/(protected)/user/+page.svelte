@@ -46,11 +46,13 @@
 	{#if user}
 		<p>Welcome, {user.first_name} {user.last_name}!</p>
 		<p>Role: {user.role}</p>
+		<div>
+			<a href="/user/checkinout">Check in/out</a>
+		</div>
 	{:else if errorMessage}
 		<p>{errorMessage}</p>
 	{:else}
 		<p>loading</p>
 	{/if}
-
 	<button onclick={handleLogout}>Logout</button>
 </main>

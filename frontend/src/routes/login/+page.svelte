@@ -46,7 +46,7 @@
                 await goto('/admin/dashboard');
             }
             else 
-                await goto('/placeholder_user_page');
+                await goto('/user');
         }
 
         catch (error) {
