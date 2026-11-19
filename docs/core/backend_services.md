@@ -11,13 +11,17 @@ Load balancing/scaling REST APIs is easy, especially in Kubernetes with services
 
 Follows `entities_relationships.md`. Frontend is expected to use REST API and WebSockets to communicate with the services. If in the future frontend needs to access more information, relevant services need to be modified. If the frontend needs to store more data, it depends. If it fits to already existing services, they are modified. If it a new feature, e.g. maps, then it should be a new service, which is loosely-coupled and has clear responsibilities.
 
+Potentially missing:
+- Analytics/statistics service
+- Map service (e.g. user preferences, search)
+
 ## User service
 
 Fully owns "User" entity. Anything that modifies "User" entity goes through this handler. This includes CRUD for users and authentication. Authentication is too tightly-connected with User to move it to a separate service.
 
 Creation, editing and deletion exposed to admin. Updating password and status is available to respective user.
 
-When user logs in, the service will set status for the user to 'online'. And it will trigger "on status changed" event.
+When user logs in, the service will set status for the user to "online". And it will trigger "on status changed" event.
 
 ## WebSocket connection service
 
