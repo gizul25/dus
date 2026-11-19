@@ -23,7 +23,7 @@ When user logs in, the service will set status for the user to 'online'. And it 
 
 Fully owns "WebSocket connection" entity. Fully responsible for taking in WebSocket connections, communicating with User service to authenticate users, and to associate WebSocket connections to users. It also includes providing message receiving and sending functionality.
 
-### Desk service
+## Desk service
 
 Fully owns "Desk" entity. This includes CRUD for desks for admins, automatic controlling of desk height based on desk profile data, manual adjustments, and other parameters. It does not handle desk sessions or modifying desk profiles, as it is a concern of different services. It is responsible for sending PUT requests to update desk height. However, it is not responsible for retrieving data from the desk, as it is handled by desk data ingestion service.
 
