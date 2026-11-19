@@ -13,8 +13,6 @@
 - Status: ['online', 'away', 'do not disturb', 'offline']
 - User card ID
 
-TODO: check if need to store salt
-
 ID:
 - Used for login purposes (not sure)
 - Desk association
@@ -335,11 +333,18 @@ Polled every minute.
 ### Data
 
 - ID
-- User agent
-- Timestamp
+- Occured timestamp
 - Error message
-- Stack trace
-- [TODO: anything more?]
+- Received timestamp
+- Stack trace (can be null)
+- Source
+- URL
+- User agent
+- Context (can be null)
+- Client host (can be null)
+- Request ID (can be null)
+
+### Events
 
 - On frontend telemetry created (ID)
 

@@ -160,10 +160,16 @@ erDiagram
 
     FrontendTelemetry {
         string id
-        string user_agent
-        timestamp timestamp
+        timestamp occured_at
+        timestamp received_at
         string error_message
         string? stack_trace
+        string? source
+        string url
+        string user_agent
+        string[]? context
+        string? client_host
+        string? request_id
     }
 
     Timer {
