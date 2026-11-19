@@ -67,7 +67,7 @@ test('loginUserAsAdmin', async ({ page }) => {
 });
 
 
-test('unathenticatedAccess', async ({ page }) => {
+test('unauthenticatedAccess', async ({ page }) => {
     await page.goto(`${hostname}/dashboard`);
     await expect(page.getByText('Authenticating')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'My Page'})).not.toBeVisible();
