@@ -8,10 +8,12 @@
 - First name
 - Last name
 - Email
-- Password
+- Password hash
 - Role: ['user', 'admin']
 - Status: ['online', 'away', 'do not disturb', 'offline']
 - User card ID
+
+TODO: check if need to store salt
 
 ID:
 - Used for login purposes (not sure)
@@ -76,8 +78,8 @@ Update user is both for admin, which allows to change almost everything. If it i
 - ID
 - Name
 - REST API URL
-- Min height
-- Max height
+- Min height (in mm)
+- Max height (in mm)
 - Manually changed desk height
 - Current desk profile ID (can be null)
 - Pending desk profile ID (can be null)
@@ -186,7 +188,7 @@ It is global config for all. There is only one entry, so ID is not needed.
 - Is away paused
 - Is user paused
 - Next reminder timer ID
-- Next desk profile
+- Next desk profile ID
 - Automatic warning timer ID
 - Is Automatic
     - If it is automatic, on "Next reminder timer ID" will show a notification, and after "Automatic warning timer ID" it will switch to "Next desk profile"
@@ -209,12 +211,12 @@ Notification sending will take "Desk session ID", get "User ID", and send notifi
 - ID
 - User ID
 - Sitting duration
-- Main sitting desk profile
+- Main sitting desk profile ID
 - Standing duration
-- Main standing desk profile
+- Main standing desk profile ID
 - Warning duration
 - Is Automatic
-- Middle desk height threshold (derived value from main sitting desk height and main standing desk height)
+- Middle desk height threshold (derived value from main sitting desk height and main standing desk height, in mm)
 
 Detection if desk is in sitting or standing position is determined by "Middle desk height threshold".
 
@@ -231,10 +233,9 @@ Idea: for frontend, the desk height graph will have 2 areas. The top area "stand
 - ID
 - User ID
 - Name
-- Desk height
-- Category: ['none', 'standing', 'sitting']
-- Enter desk profile threshold
-- Exit desk profile threshold
+- Desk height (in mm)
+- Enter desk profile threshold (in mm)
+- Exit desk profile threshold (in mm)
 
 Enter and exit desk profile thresholds are needed when the user is manually changing the desk height. It should detect that the desk has entered height range of a new desk profile. E.g., user has manually moved their desk from standing position to a sitting one. Different enter and exit thresholds are needed to prevent high fluctuation at the boundary of thresholds.
 Automatic profile switching would also mean that overlap between desk heights is not expected or not even allowed.
@@ -267,7 +268,7 @@ Reporter user ID is either the person who notified the issue, or *perhaps* the p
 - ID
 - Desk ID
 - Timestamp
-- Temperature
+- Temperature celsius
 - Humidity
 - Light
 
@@ -299,8 +300,8 @@ On new environmental data:
 - ID
 - Desk ID
 - Timestamp
-- Desk height (LINAK calls it position)
-- Speed
+- Desk height (LINAK calls it position, in mm)
+- Speed (in mm/s)
 
 Polled every 5 seconds.
 Speed is for hardware and issue diagnostics.
@@ -317,6 +318,8 @@ Same reasoning for events as for Pico environmental data.
 
 ### Data
 
+- ID
+- Desk ID
 - Device name
 - Manufacturer
 - Status
