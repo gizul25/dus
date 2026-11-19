@@ -121,11 +121,15 @@ On desk updated:
 
 ### Actions
 
-TODO
+- Create desk category (data) -> ID
+- Update desk category (ID, data)
+- Delete desk category (ID)
 
 ### Events
 
-TODO
+- On desk category created (ID)
+- On desk category updated (ID)
+- On desk category deleted (ID)
 
 ## Desk session
 
@@ -137,8 +141,8 @@ TODO
 - Start timestamp
 - Finished timestamp
 - Finished reason: ['timeout', 'checkout']
-- Automatic timeout notification timestamp
-- Automatic timeout action timestamp
+- Automatic timeout notification timer ID
+- Automatic timeout action timer ID
 
 ### Actions
 
@@ -151,14 +155,14 @@ TODO
 
 - On desk session started (ID)
 - On desk session ended (ID)
-- On automatic timeout notification timestamp (ID)
-- On automatic timeout action timestamp (ID)
+- On automatic timeout notification (ID)
+- On automatic timeout action (ID)
 
 ## Desk session config
 
 ### Data
 
-- Automatic desk association timeout
+- Automatic desk association timeout duration
 
 It is global config for all. There is only one entry, so ID is not needed.
 
@@ -179,20 +183,22 @@ It is global config for all. There is only one entry, so ID is not needed.
 - Start timestamp
 - Time elapsed before pause
 - Is paused
-- Next reminder timestamp
+- Is away paused
+- Is user paused
+- Next reminder timer ID
 - Next desk profile
-- Automatic warning duration
+- Automatic warning timer ID
 - Is Automatic
-    - If it is automatic, on "Next reminder timestamp" will show a notification, and after "Automatic warning duration" it will switch to "Next desk profile"
+    - If it is automatic, on "Next reminder timer ID" will show a notification, and after "Automatic warning timer ID" it will switch to "Next desk profile"
     - If it is not, it will not switch to "Next desk profile"
 
 Notification sending will take "Desk session ID", get "User ID", and send notification to all WebSocket connections.
 
-"Time elapsed before pause" is stored when the health reminder is stopped. When it is resumed, it uses paused time elapsed to recalculate "Next reminder timestamp"
+"Time elapsed before pause" is stored when the health reminder is stopped. When it is resumed, it uses paused time elapsed to recalculate "Next reminder timer ID"
 
 ### Events
 
-- On next reminder timestamp (ID)
+- On next reminder timer (ID)
 - On warning duration finished (ID)
 - Is automatic changed (ID)
 
@@ -280,7 +286,10 @@ On new environmental data:
 
 ### Data
 
+- ID
 - Desk ID
+- Next realtime desk fetch timer ID
+- Next periodic desk fetch timer ID
 - Desk last fetched error time (time_s for last error from desk)
 
 ## Realtime desk API data
@@ -330,3 +339,19 @@ Polled every minute.
 - [TODO: anything more?]
 
 - On frontend telemetry created (ID)
+
+## Timer
+
+### Data
+
+- ID
+- Trigger timestamp
+
+### Actions
+
+- Create timer (timestamp) -> ID
+- Delete timer (ID)
+
+### Events
+
+- On timer triggered (ID)

@@ -15,6 +15,11 @@ Potentially missing:
 - Analytics/statistics service
 - Map service (e.g. user preferences, search)
 
+Timer research:
+- https://hackernoon.com/building-a-distributed-timer-service-at-scale-handling-100k-timers-per-second
+
+Timing is a bit more complicated, as we need to keep track of timers between service restarts. Main issue is making it work reliably in a distributed system with multiple same service instances running on different nodes, and partitioning timers nicely with a decent plan of recovering timers from instances, which stopped working. A simple but problem approach we can take is to have a service, and it knows all the timestamps relevant to in a database. It is already handled by design. At the start of the service, service would start all the timers, which should end on relevant timestamps. If service needs to restart, no problem, as it would pick up the timers again on next start. However, there's no clear definition of partitioning timers between different service instances. Also, introducing timers to services adds a little bit of state too, which doesn't make the services itself stateless. So, a better idea would be to have a timer service, which would allow to register, add, remove timers, and it would send events when timers are triggered. It would scale independently from services themselves, and the stateful nature of them would be isolated, allowing easier scaling for other services depending on timers.
+
 ## User service
 
 Fully owns "User" entity. Anything that modifies "User" entity goes through this handler. This includes CRUD for users and authentication. Authentication is too tightly-connected with User to move it to a separate service.
@@ -29,13 +34,11 @@ Fully owns "WebSocket connection" entity. Fully responsible for taking in WebSoc
 
 ## Desk service
 
-Fully owns "Desk" entity. This includes CRUD for desks for admins, automatic controlling of desk height based on desk profile data, manual adjustments, and other parameters. It does not handle desk sessions or modifying desk profiles, as it is a concern of different services. It is responsible for sending PUT requests to update desk height. However, it is not responsible for retrieving data from the desk, as it is handled by desk data ingestion service.
+Fully owns "Desk" entity. This includes CRUD for desks for admins, automatic controlling of desk height based on desk profile data, updating desired target height from manual adjustments, which are retrieved from WebSockets messages (WebSocket connection service handles retrieving messages, and pushing them to Apache Kafka as events), adjusting height based on manual adjustments, and other parameters. It does not handle desk sessions or modifying desk profiles, as it is a concern of different services. It is responsible for sending PUT requests to update desk height. However, it is not responsible for retrieving data from the desk, as it is handled by desk data ingestion service.
 
 ## Desk session service
 
 Fully owns "Desk session", and "Desk session config" entities. Fully responsible for check-in/check-out, handling automatic timeouts, and updating user status based on desk activity. Note that it has timestamps, which means it needs to correctly handle timers when service instances are restarting.
-
-I do not yet have a clear design how to handle timers correctly. TODO: research
 
 ## Health reminder service
 
@@ -61,4 +64,8 @@ Fully owns "Last desk API fetch", "Realtime desk API data", and "Periodic desk A
 
 ## Frontend telemetry service
 
-Fully owns "Frontend telemetry" entity. Responsible for capturing frontend errors, and sending them to backend to be stored in a database. This service contains frontend element, which adds an error hook to frontend, and forwards these errors to backend. 
+Fully owns "Frontend telemetry" entity. Responsible for capturing frontend errors, and sending them to backend to be stored in a database. This service contains frontend element, which adds an error hook to frontend, and forwards these errors to backend.
+
+## Timer service
+
+Fully owns "Timer" entity. Responsible for CRUD (no update tho) for timers, and sending event once timer timestamp is reached. Service contains state, so it needs special attention. Scaling this service is problematic, so the best course of action for now is to define fixed partition count at the start of running the cluster, and use timer ID as a partition key.
