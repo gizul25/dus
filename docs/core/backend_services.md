@@ -38,7 +38,7 @@ Fully owns "Desk" entity. This includes CRUD for desks for admins, automatic con
 
 ## Desk session service
 
-Fully owns "Desk session", and "Desk session config" entities. Fully responsible for check-in/check-out, handling automatic timeouts, and updating user status based on desk activity. Note that it has timestamps, which means it needs to correctly handle timers when service instances are restarting.
+Fully owns "Desk session", and "Desk session config" entities. Fully responsible for check-in/check-out, handling automatic timeouts, and updating user status based on desk activity. Note that it has timestamps, which means it needs to correctly handle timers using timer service.
 
 ## Health reminder service
 

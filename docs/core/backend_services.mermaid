@@ -1,0 +1,15 @@
+flowchart TD
+    WebSocketConnectionService --> UserService
+    DeskService --> WebSocketConnectionService
+    DeskSessionService --> DeskService
+    DeskSessionService --> DeskProfileService
+    DeskSessionService --> UserService
+    DeskSessionService --> TimerService
+    HealthReminderService --> DeskSessionService
+    HealthReminderService --> TimerService
+    HealthReminderService --> WebSocketConnectionService
+    HealthReminderService --> DeskProfileService
+    DeskProfileService
+    PicoEnvironmetalDataIngestionService
+    DeskDataIngestionService --> TimerService
+    FrontendTelemetryService
