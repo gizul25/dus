@@ -20,6 +20,7 @@
 			}
 
 			loading = false;
+			
 		} catch (error) {
 			console.error('Authentication check failed:', error);
 			await goto('/login');

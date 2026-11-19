@@ -20,7 +20,7 @@
             const user = await response.json();
 
             if (user.role !== 'admin' || user.mode !== 'admin') {
-                await goto('/test_user_page');
+                await goto('/dashboard');
                 return;
             }
 
@@ -28,7 +28,7 @@
             }
         
         catch (error) {
-            console.error('Admin authorization fialed', error);
+            console.error('Admin authorization failed', error);
             await goto('/login');
         }
     });
