@@ -9,7 +9,7 @@ from ..dependencies import get_current_user
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+router = APIRouter(prefix="/infoboard", tags=["infoboard"])
 
 
 class MeResponse(BaseModel):
@@ -89,7 +89,7 @@ def list_desk_stats(request: Request) -> list[DeskResponse]:
         }},
         {"$group": {
             "_id": "$desk_id",
-            "avg_sit_min":   {"$avg": {"$cond": [{"$eq": ["$position", "sitting"]},   "$duration_min", None]}},
+            "avg_sit_min":   {"$avg": {"$cond": [{"$eq": ["$position", "sitting"]}, "$duration_min", None]}},
             "avg_stand_min": {"$avg": {"$cond": [{"$eq": ["$position", "standing"]}, "$duration_min", None]}},
             "temperature":   {"$avg": "$temperature_c"},
         }},
