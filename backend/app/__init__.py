@@ -3,11 +3,12 @@ import logging
 import os
 
 import pymongo
+from argon2 import PasswordHasher
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .dependencies import get_current_user
-from .routers import telemetry, desk, user, auth
+from .routers import infoboard, telemetry, desk, user, auth
 
 from .desk_reminder import reminder
 from .routers.admin import users as admin_users, desks as admin_desks
@@ -33,6 +34,14 @@ async def lifespan(app: FastAPI):
     db_name = os.environ["DBNAME"]
     app.db = app.mongo_client[db_name]
     app.db["users"].create_index("email", unique=True)
+    app.db["periods"].create_index([("user_id", 1), ("started_at", -1)])
+    app.db["periods"].create_index([("ended_at", 1), ("desk_id", 1)])
+    app.db["periods"].create_index(                                        # invariant
+        [("user_id", 1)],
+        unique=True,
+        partialFilterExpression={"ended_at": None},
+        name="one_open_period_per_user",
+    )
 
     logger.info("lifespan ready")
 
@@ -57,6 +66,7 @@ def make_app(lifespan):
     app.include_router(auth.router)
     app.include_router(admin_users.router)
     app.include_router(admin_desks.router)
+    app.include_router(infoboard.router)
     
     app.include_router(reminder)
 

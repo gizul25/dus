@@ -1,4 +1,7 @@
-from fastapi import APIRouter, HTTPException, Response, status, Request
+from fastapi import APIRouter, Depends, HTTPException, Response, status, Request
+
+from ..dependencies import get_current_user
+from ..periods import record_transition
 
 from ..desk_tracking import (
     DeskStatus,
@@ -16,10 +19,9 @@ from ..desk_reminder import (
     get_saved_preferences,
     reminder_functionality,
     is_forced_standup_reminder,
-    check_height
+    check_height,
+    enable_reminder
 )
-
-from ..desk_reminder import enable_reminder
 
 router = APIRouter(prefix="/desk", tags=["desk"])
 tracker = DeskTracker()
@@ -89,19 +91,34 @@ async def activate_profile(profile_id: str) -> NamedTimerProfile:
 
 
 @router.post("/readings", response_model=DeskStatus)
-def record_reading(reading: HeightReading, request: Request) -> DeskStatus:
+def record_reading(
+    reading: HeightReading,
+    request: Request,
+    current_user: dict = Depends(get_current_user),
+) -> DeskStatus:
     if tracker.last_reading_at is not None and reading.recorded_at < tracker.last_reading_at:
         raise HTTPException(status_code=422, detail="recorded_at cannot precede the previous reading")
+
     desk_status = tracker.record(reading)
+
     if desk_status.reminder_due:
         preferences = get_saved_preferences(request)
         enabled_reminder = reminder_functionality(preferences)
         enable_reminder(enabled_reminder)
         is_forced_standup_reminder(preferences)
         tracker.reminder_triggered = True
+
     position = desk_status.position
     if DeskPosition.STANDING == position:
         check_height(desk_status.height_cm, tracker.profile.standing_min_height_cm)
+
+    record_transition(
+        db=request.app.db,
+        user_id=str(current_user["_id"]),
+        reading=reading,
+        position=position.value,
+    )
+
     return desk_status
 
 

@@ -25,6 +25,7 @@ class User(BaseModel):
     last_name: str = Field(...)
     email: str = Field(...)
     role: str = Field(...)
+    desk_id: Optional[str]
 
 class UserCreate(BaseModel):
     id: str = Field(default_factory=uuid.uuid4, alias="_id")
@@ -33,12 +34,14 @@ class UserCreate(BaseModel):
     email: str
     password: str
     role: Literal["user", "admin"] = "user"
+    desk_id: Optional[str]
 
 class UserUpdate(BaseModel):
     first_name: Optional[str]
     last_name: Optional[str]
     email: Optional[str]
     role: Optional[str]
+    desk_id: Optional[str]
 
 @router.get("/", response_model=List[User])
 async def get_users(request: Request):
