@@ -46,8 +46,8 @@ erDiagram
         string id
         string user_id
         string desk_id
-        timestamp start_timestamp
-        timestamp finished_timestamp
+        timestamp started_at
+        timestamp finished_at
         string finished_reason
         string automatic_timeout_notification_timer_id
         string automatic_timeout_action_timer_id
@@ -58,13 +58,23 @@ erDiagram
         duration automatic_desk_association_timeout_duration
     }
 
+    DeskProfile ||--o{ User : uses
+    DeskProfile {
+        string id
+        string user_id
+        string name
+        int desk_height_mm
+        int enter_desk_profile_threshold_mm
+        int exit_desk_profile_threshold_mm
+    }
+
     HealthReminder ||--o{ DeskProfile : uses
     HealthReminder ||--o{ DeskSession : uses
     HealthReminder ||--o{ Timer : uses
     HealthReminder {
         string id
         string desk_session_id
-        timestamp start_timestamp
+        timestamp started_at
         duration time_elapsed_before_pause
         bool is_paused
         bool is_away_paused
@@ -89,16 +99,6 @@ erDiagram
         bool is_automatic
         int middle_desk_height_threshold_mm
     }
-    
-    DeskProfile ||--o{ User : uses
-    DeskProfile {
-        string id
-        string user_id
-        string name
-        int desk_height_mm
-        int enter_desk_profile_threshold_mm
-        int exit_desk_profile_threshold_mm
-    }
 
     DeskIssue ||--o{ Desk : uses
     DeskIssue ||--o{ User : uses
@@ -106,8 +106,8 @@ erDiagram
         string id
         string desk_id
         string? reporter_user_id
-        timestamp created_timestamp
-        timestamp resolved_timestamp
+        timestamp created_at
+        timestamp resolved_at
         string severity
         int? error_code
         string? title
@@ -175,4 +175,33 @@ erDiagram
     Timer {
         string id
         timestamp trigger_timestamp
+    }
+
+    Statistics ||--o{ RealtimeDeskAPIData : uses
+    Statistics ||--o{ DeskSession : uses
+    Statistics ||--o{ PicoEnvironmentalData : uses
+    Statistics ||--o{ DeskIssue : uses
+    Statistics {
+    }
+
+    OfficeMap ||--o{ Desk : uses
+    OfficeMap ||--o{ DeskSession : uses
+    OfficeMap ||--o{ PicoEnvironmentalData : uses
+    OfficeMap ||--o{ DeskIssue : uses
+    OfficeMap {
+        Layer[] layers
+        string layers.id
+        string layers.name
+        Bounds layers.bounds
+        Rectangle[] layers.rectangles
+        string layers.rectangles.id
+        Vector2 layers.rectangles.position
+        Vector2 layers.rectangles.size
+        float layers.rectangles.rotation
+        string layers.rectangles.desk_id
+    }
+
+    PicoPeripherals ||--o{ DeskSession : uses
+    PicoPeripherals ||--o{ HealthReminder : uses
+    PicoPeripherals {
     }

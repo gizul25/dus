@@ -20,6 +20,8 @@ Timer research:
 
 Timing is a bit more complicated, as we need to keep track of timers between service restarts. Main issue is making it work reliably in a distributed system with multiple same service instances running on different nodes, and partitioning timers nicely with a decent plan of recovering timers from instances, which stopped working. A simple but problem approach we can take is to have a service, and it knows all the timestamps relevant to in a database. It is already handled by design. At the start of the service, service would start all the timers, which should end on relevant timestamps. If service needs to restart, no problem, as it would pick up the timers again on next start. However, there's no clear definition of partitioning timers between different service instances. Also, introducing timers to services adds a little bit of state too, which doesn't make the services itself stateless. So, a better idea would be to have a timer service, which would allow to register, add, remove timers, and it would send events when timers are triggered. It would scale independently from services themselves, and the stateful nature of them would be isolated, allowing easier scaling for other services depending on timers.
 
+TODO: Failover handling, retries and timeouts
+
 ## User service
 
 Fully owns "User" entity. Anything that modifies "User" entity goes through this handler. This includes CRUD for users and authentication. Authentication is too tightly-connected with User to move it to a separate service.
@@ -54,6 +56,10 @@ Fully owns "Desk profile" entity. This service only has one responsibility - CRU
 
 Fully owns "Desk issue" entity. Responsible for CRUD for desk issues, sending notifications to admin when issues arise, and sending notifications to reporters when issues are resolved.
 
+## Pico peripherals service
+
+Fully owns "Pico peripherals" entity. Responsible to track events to desk status and health reminders to set correct desk Pico LED colour, and play buzzer sounds.
+
 ## Pico environmental data ingestion service
 
 Fully owns "Pico environmental data" entity. Responsible for getting environmental data from Pico device, and storing it in the database. This service has embedded component written in C++, which is located in Raspberry Pi Pico, which publishes and subscribes to MQTT topics. Backend part is responsible for listening and responding to MQTT messages, storing them in a database, and sending relevant events.
@@ -69,3 +75,11 @@ Fully owns "Frontend telemetry" entity. Responsible for capturing frontend error
 ## Timer service
 
 Fully owns "Timer" entity. Responsible for CRUD (no update tho) for timers, and sending event once timer timestamp is reached. Service contains state, so it needs special attention. Scaling this service is problematic, so the best course of action for now is to define fixed partition count at the start of running the cluster, and use timer ID as a partition key.
+
+## Statistics service
+
+Fully owns "Statistics" entity. Responsible for statistics page backend. Does not include office map statistics.
+
+## Office map service
+
+Fully owns "Office map" entity. Responsible for office map page backend. Office map statistics are done in this service, and not statistics service.

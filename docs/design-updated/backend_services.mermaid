@@ -13,3 +13,15 @@ flowchart TD
     PicoEnvironmetalDataIngestionService
     DeskDataIngestionService --> TimerService
     FrontendTelemetryService
+    StatisticsService
+    OfficeMapService --> WebSocketConnectionService
+    OfficeMapService --> DeskSessionService
+    OfficeMapService --> DeskDataIngestionService
+    OfficeMapService --> PicoEnvironmetalDataIngestionService
+    OfficeMapService --> DeskIssueService
+    StatisticsService --> DeskSessionService
+    StatisticsService --> DeskDataIngestionService
+    StatisticsService --> PicoEnvironmetalDataIngestionService
+    StatisticsService --> DeskIssueService
+    PicoPeripheralsService --> DeskSessionService
+    PicoPeripheralsService --> HealthReminderService

@@ -1,0 +1,30 @@
+---
+  config:
+    class:
+      hideEmptyMembersBox: true
+---
+classDiagram
+    namespace Server {
+        class Backend
+        class LoadBalancer["Load balancer"]
+        class Frontend
+        class API
+        class WebSocketConnection["WebSocket connection"]
+        class ApacheKafka["Apache Kafka"]
+        class MQTTBroker["MQTT Broker"]
+        class MongoDB
+    }
+    class Browser
+    class RaspberryPico["Raspberry Pico"]
+    class Desk
+    Browser "0..*" --> "1" LoadBalancer
+    LoadBalancer "1" --> "1..*" Frontend
+    LoadBalancer "1" --> "1..*" API
+    LoadBalancer "1" --> "1..*" WebSocketConnection
+    ApacheKafka "1..*" --> "1..*" WebSocketConnection
+    Backend "1..*" --> "1" MongoDB
+    Backend "1..*" --> "1..*" Desk
+    Backend "1..*" --> "1..*" API
+    Backend "1..*" --> "1..*" WebSocketConnection
+    Backend "1..*" --> "1" MQTTBroker
+    MQTTBroker "1" --> "1..*" RaspberryPico
