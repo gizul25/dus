@@ -25,3 +25,12 @@ flowchart TD
     StatisticsService --> DeskIssueService
     PicoPeripheralsService --> DeskSessionService
     PicoPeripheralsService --> HealthReminderService
+    DeskProfileService --> UserService
+    DeskService --> DeskProfileService
+    HealthReminderService --> UserService
+    DeskIssueService --> DeskService
+    DeskIssueService --> UserService
+    DeskIssueService --> WebSocketConnectionService
+    PicoEnvironmetalDataIngestionService --> DeskService
+    DeskDataIngestionService --> DeskService
+    PicoPeripheralsService --> UserService

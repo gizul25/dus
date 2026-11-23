@@ -1,7 +1,5 @@
 # Frontend modules
 
-TODO: desk session config not exposed
-
 ## Authentication
 
 - Authenticating should open a WebSocket to the server. WebSocket should not be closed when navigating between pages. WebSocket should only be closed when logging out, tab with active WebSocket connection was closed, or WebSocket connection has timed out (checked on server-side, I think it's already automatic with WebSockets).
@@ -11,18 +9,18 @@ TODO: desk session config not exposed
 
 ## Dashboard
 
-### Current user widget
+### Current user sidebar icon
 
-- Current user first name and last name
-- Get/set status
-- Currently associated desk name
-- Check-in/check-out button
+- Current user first name and last name initials
 
-Settings:
+Dropdown menu:
 - Set new password
 
-### Current desk widget
+### Desk session widget
 
+- Currently associated desk name
+- Check-in/check-out button
+- Get/set user status
 - Get/set desk manual desk height
 - Get current desk profile
 - Get/set pending desk profile
@@ -30,10 +28,9 @@ Settings:
 ### Desk profile widget
 
 - Show a list of user's desk profiles
-    - Show columns: Name, desk height, enter desk profile threshold, exit desk profile threshold.
-    TODO: decide if exposing thresholds is too much, and we should hide it under advanced options, and provide default values instead.
-    - Create desk profile: Name, desk height, enter desk profile threshold, exit desk profile threshold.
-    - Edit desk profile: Name, desk height, enter desk profile threshold, exit desk profile threshold.
+    - Show columns: Name, desk height.
+    - Create desk profile: Name, desk height.
+    - Edit desk profile: Name, desk height.
     - Delete desk profile
 
 ### Healthy habits widget
@@ -54,6 +51,10 @@ Settings:
 - Cancel button in automatic warning notification and in standing timer widget
 - Receive manual move notification
 - Receive automatically moving notification (after automatic warning)
+
+### Minimap widget
+
+- Includes office map component, looks and behaves same as office map page
 
 ## Statistics page
 
@@ -105,32 +106,36 @@ Settings:
 ### Desks tab
 
 - Show list component of all desks
-    - Show columns: ID, name, REST API URL, min height, max height, manually changed desk height, current desk profile ID, pending desk profile ID, is desk profile autocorrection enabled
+    - Show columns: ID, name, REST API URL, min height, max height, desk category ID
     - Copy desk ID
-    - Create desk: name, REST API URL, min height, max height
-    - Edit desk: name, REST API URL, min height, max height
+    - Create desk: name, REST API URL, min height, max height, desk category ID
+    - Edit desk: name, REST API URL, min height, max height, desk category ID
     - Delete desk
 
 Currently, administrator has to enter desk name, min height and max height, meanwhile they are technically accessible from REST API URL.
 Any added desk does not automatically move on its own, because "is desk profile autocorrection enabled" is set to false. This allows the administrator, for instance, to set default category to a desk before desk is controlled.
-TODO: does it make sense to change manually changed desk height, current desk profile ID, pending desk profile ID, and is desk profile autocorrection enabled
 
-### Desk categories tab
+### Admin settings
+
+#### Desk categories
 
 - Show list component of desk categories
-    - Show columns: ID, Name, Desk IDs, Default desk profile ID
+    - Show columns: ID, Name, Default desk profile ID
     - Copy desk category ID
-    - Create desk category: name, Desk IDs, Default desk profile ID
-    - Edit desk category: name, Desk IDs, Default desk profile ID
+    - Create desk category: name, Default desk profile ID
+    - Edit desk category: name, Default desk profile ID
     - Delete desk category
 
-UI will not be the best looking one, as it will have a desk ID array inside a list row. Furthermore, it contains a lot of IDs. We could hide details of IDs, and always show to user desk names and desk profile names. When creating and editing, there would be dropdowns with desk names and desk profile names, not ID field.
+#### Desk session
+
+- Setting value: Automatic desk association timeout duration
 
 ### Desk sessions tab
 
 - Show list component of desk sessions
     - Show columns: ID, User ID, Desk ID, Start timestamp, Finished timestamp, finished reason
     - List is purely read-only, and even admin should not modify or delete desk sessions
+    - Actions: Check-out desk session
 
 ### Shared tabs
 
@@ -140,6 +145,8 @@ Same tabs added to tab list:
 - Issues page
 
 ## Office map
+
+Describes office map component, which is included in office map page.
 
 3 different map modes:
 - Standard mode
@@ -190,6 +197,8 @@ List:
 Time-series graph:
     - Standard graph, but allows to select time period
     - Time period selection: today, yesterday, this week, last week, customly selected day range using calendar widget
+Office map component:
+    - Designed as component as it is included in dashboard and dedicated office map page
 Time period selector might be reusable between statistics and office map.
 
 Standard elements, such as buttons, popups/dialogs, form elements, dropdowns, checkboxes, select boxes, tabs, textareas, toggle boxes.

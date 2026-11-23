@@ -11,10 +11,6 @@ Load balancing/scaling REST APIs is easy, especially in Kubernetes with services
 
 Follows `entities_relationships.md`. Frontend is expected to use REST API and WebSockets to communicate with the services. If in the future frontend needs to access more information, relevant services need to be modified. If the frontend needs to store more data, it depends. If it fits to already existing services, they are modified. If it a new feature, e.g. maps, then it should be a new service, which is loosely-coupled and has clear responsibilities.
 
-Potentially missing:
-- Analytics/statistics service
-- Map service (e.g. user preferences, search)
-
 Timer research:
 - https://hackernoon.com/building-a-distributed-timer-service-at-scale-handling-100k-timers-per-second
 
@@ -26,9 +22,7 @@ TODO: Failover handling, retries and timeouts
 
 Fully owns "User" entity. Anything that modifies "User" entity goes through this handler. This includes CRUD for users and authentication. Authentication is too tightly-connected with User to move it to a separate service.
 
-Creation, editing and deletion exposed to admin. Updating password and status is available to respective user.
-
-When user logs in, the service will set status for the user to "online". And it will trigger "on status changed" event.
+Creation, editing and deletion exposed to admin. Updating password is available to respective user.
 
 ## WebSocket connection service
 
@@ -40,7 +34,9 @@ Fully owns "Desk" entity. This includes CRUD for desks for admins, automatic con
 
 ## Desk session service
 
-Fully owns "Desk session", and "Desk session config" entities. Fully responsible for check-in/check-out, handling automatic timeouts, and updating user status based on desk activity. Note that it has timestamps, which means it needs to correctly handle timers using timer service.
+Fully owns "Desk session", and "Desk session config" entities. Fully responsible for check-in/check-out, handling automatic timeouts, and updating user status based on desk activity and user interaction. Note that it has timestamps, which means it needs to correctly handle timers using timer service.
+
+When user checks-in, the service will set status for the user to "online". And it will trigger "on status changed" event.
 
 ## Health reminder service
 
@@ -58,7 +54,7 @@ Fully owns "Desk issue" entity. Responsible for CRUD for desk issues, sending no
 
 ## Pico peripherals service
 
-Fully owns "Pico peripherals" entity. Responsible to track events to desk status and health reminders to set correct desk Pico LED colour, and play buzzer sounds.
+Fully owns "Pico peripherals" entity. Responsible to track events to desk status and health reminders to set correct desk Pico LED colour, and play buzzer sounds. It is also responsible for RFID authentication, communicating with desk session service to start new desk session with RFID card.
 
 ## Pico environmental data ingestion service
 

@@ -6,7 +6,6 @@ erDiagram
         string email
         string password_hash
         string role
-        string status
         string? user_card_id
     }
 
@@ -18,12 +17,14 @@ erDiagram
     }
 
     Desk ||--o{ DeskProfile : uses
+    Desk ||--o{ DeskCategory : uses
     Desk {
         string id
         string name
         string rest_api_url
         int min_height_mm
         int max_height_mm
+        string desk_category_id
         int? manually_changed_desk_height_mm
         string? current_desk_profile_id
         string? pending_desk_profile_id
@@ -31,11 +32,9 @@ erDiagram
     }
 
     DeskCategory ||--o{ DeskProfile : uses
-    DeskCategory ||--o{ Desk : uses
     DeskCategory {
         string id
         string name
-        string[] desk_ids
         string default_desk_profile_id
     }
 
@@ -46,6 +45,7 @@ erDiagram
         string id
         string user_id
         string desk_id
+        string status
         timestamp started_at
         timestamp finished_at
         string finished_reason
@@ -64,8 +64,6 @@ erDiagram
         string user_id
         string name
         int desk_height_mm
-        int enter_desk_profile_threshold_mm
-        int exit_desk_profile_threshold_mm
     }
 
     HealthReminder ||--o{ DeskProfile : uses

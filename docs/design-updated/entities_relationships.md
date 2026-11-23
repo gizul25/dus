@@ -12,7 +12,6 @@
 - Email
 - Password hash
 - Role: ['user', 'admin']
-- Status: ['online', 'away', 'do not disturb', 'offline']
 - User card ID
 
 ID:
@@ -31,8 +30,6 @@ Email and password:
 Role:
 - Admin role has access to admin dashboard page
 
-Idea: for frontend, big banner for 'away' which prevents doing anything before changing status back to something else not 'away'.
-
 ### Actions
 
 - Get users (offset, limit) -> data
@@ -42,7 +39,6 @@ Idea: for frontend, big banner for 'away' which prevents doing anything before c
 - Delete user (ID)
 - Login (ID)
 - Logout (ID)
-- Set status (ID, new status)
 - Update password (ID, new password)
 
 Update user is both for admin, which allows to change almost everything. If it is user who is changing, they are limited to password and status.
@@ -52,7 +48,6 @@ Update user is both for admin, which allows to change almost everything. If it i
 - On user deleted (ID)
 - On logged in (ID)
 - On logged out (ID)
-- On status changed (ID, old status, new status)
 
 ## WebSocket connection
 
@@ -83,12 +78,13 @@ Update user is both for admin, which allows to change almost everything. If it i
 - REST API URL
 - Min height (in mm)
 - Max height (in mm)
+- Desk category ID
 - Manually changed desk height
 - Current desk profile ID (can be null)
 - Pending desk profile ID (can be null)
 - Is desk profile autocorrection enabled
 
-When manually changing desk height, if height exits current desk profile threshold, current desk profile is removed.
+When manually changing desk height, current profile always stays the same and is not removed.
 
 ID:
 - Receiving MQTT packets
@@ -125,7 +121,6 @@ On desk updated:
 
 - ID
 - Name
-- Desk IDs
 - Default desk profile ID
 
 ### Actions
@@ -149,6 +144,7 @@ On desk updated:
 - ID
 - User ID
 - Desk ID
+- Status: ['online', 'away', 'do not disturb', 'offline']
 - Started at timestamp
 - Finished at timestamp
 - Finished reason: ['timeout', 'checkout']
@@ -157,11 +153,14 @@ On desk updated:
 
 At the end of desk session, ideally if there is no another desk session, it should clear any current or pending desk profiles for the desk, and it should reset back to desk category's default desk profile.
 
+Idea: for frontend, big banner for 'away' which prevents doing anything before changing status back to something else not 'away'.
+
 ### Actions
 
 - Get desk sessions (offset, limit) -> data
 - Get desk session (ID) -> data
 - Get user desk session (user ID) -> data
+- Set status (ID, new status)
 - Check-in (user ID, desk ID) -> desk session ID
 - Check-out (ID)
 - Check-out user (user ID)
@@ -171,6 +170,7 @@ At the end of desk session, ideally if there is no another desk session, it shou
 
 - On desk session started (ID)
 - On desk session ended (ID)
+- On status changed (ID, old status, new status)
 - On automatic timeout notification (ID)
 - On automatic timeout action (ID)
 
@@ -184,6 +184,7 @@ It is global config for all. There is only one entry, so ID is not needed.
 
 ### Actions
 
+- Get config () -> data
 - Update config (new config)
 
 ### Events
@@ -198,11 +199,6 @@ It is global config for all. There is only one entry, so ID is not needed.
 - User ID
 - Name
 - Desk height (in mm)
-- Enter desk profile threshold (in mm)
-- Exit desk profile threshold (in mm)
-
-Enter and exit desk profile thresholds are needed when the user is manually changing the desk height. It should detect that the desk has entered height range of a new desk profile. E.g., user has manually moved their desk from standing position to a sitting one. Different enter and exit thresholds are needed to prevent high fluctuation at the boundary of thresholds.
-Automatic profile switching would also mean that overlap between desk heights is not expected or not even allowed.
 
 ### Actions
 

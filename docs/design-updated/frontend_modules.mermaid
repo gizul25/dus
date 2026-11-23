@@ -2,18 +2,21 @@ flowchart TD
     Authentication --> User
     Authentication --> Admin
     User --> Dashboard
-    Dashboard --> CurrentUserWidget
-    Dashboard --> CurrentDeskWidget
+    Dashboard --> CurrentUserSidebarIcon
+    Dashboard --> DeskSessionWidget
     Dashboard --> CurrentProfileWidget
     Dashboard --> HealthyHabitsWidget
+    Dashboard --> MinimapWidget
     User --> StatisticsPage
     User --> DeskIssuesPage
     User --> OfficeMapPage
     Admin --> AdminInterface
     AdminInterface --> UsersTab
     AdminInterface --> DesksTab
-    AdminInterface --> DeskCategoriesTab
     AdminInterface --> DeskSessionsTab
+    AdminInterface --> AdminSettings
+    AdminSettings --> DeskCategories
+    AdminSettings --> DeskSession
     Admin --> StatisticsPage
     Admin --> OfficeMapPage
     Admin --> DeskIssuesPage
