@@ -1,0 +1,31 @@
+C4Dynamic
+Person(user, "User", "Standard employee using height-adjustable desks")
+Person(admin, "Administrator", "Configures the system, monitors the system, and resolves desk issues")
+System_Boundary(c1, "Application software system") {
+    Container(web_app, "Web Application", "User browser, JS/TS, Svelte", "TODO")
+    System_Boundary(c2, "Backend") {
+        Container(load_balancer, "Load balancer", "Nginx in development, Kubernetes in production", "TODO")
+        Container(frontend, "Frontend server", "Svelte", "TODO")
+        Container(apache_kafka, "Apache Kafka", "custom container in dev, apache/kafka in prod", "Responsible for forwarding messages between different services")
+        Container(mqtt_broker, "MQTT Broker", "eclipse-mosquitto", "TODO")
+        Container(mongo_db, "MongoDB", "mongo", "TODO")
+        Container(backend_services, "Backend services", "Python", "TODO")
+        // TODO: Change ID
+        Container(websocket_handler, "WebSocketConnectionService", "Python", "TODO")
+    }
+    Container(raspberry_pi_pico, "Raspberry Pi Pico", "C/C++", "TODO")
+}
+System(desk_rest_api, "Desk REST API server")
+
+Rel(user, web_app, "Uses", "HTTPS/WSS")
+Rel(admin, web_app, "Uses", "HTTPS/WSS")
+Rel(web_app, load_balancer, "TODO", "HTTPS/WSS")
+Rel(load_balancer, websocket_handler, "TODO", "WSS")
+Rel(load_balancer, backend_services, "TODO", "HTTPS")
+Rel(load_balancer, frontend, "TODO", "HTTPS")
+Rel(backend_services, mqtt_broker, "TODO", "TCP TLS")
+Rel(backend_services, apache_kafka, "TODO", "TCP")
+Rel(backend_services, mongo_db, "TODO", "TODO")
+Rel(backend_services, desk_rest_api, "TODO", "HTTPS")
+Rel(websocket_handler, mongo_db, "TODO", "TODO")
+Rel(mqtt_broker, raspberry_pi_pico, "TODO", "TCP TLS")

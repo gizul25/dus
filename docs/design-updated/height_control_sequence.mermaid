@@ -1,0 +1,10 @@
+sequenceDiagram
+    Frontend->>WebSocket: Set manual height to 1200mm
+    WebSocket->>Apache Kafka: Push WebSocket message
+    Apache Kafka->>DeskService: Poll WebSocket message
+    DeskService->>Desk REST API: Set desk height to 1200mm
+    DeskDataIngestionService->>Desk REST API: Poll desk height
+    DeskDataIngestionService->>Apache Kafka: Push new desk height event message
+    Apache Kafka->>DeskService: On new desk height event (1100mm)
+    Apache Kafka->>WebSocket: On new desk height event (1100mm)
+    WebSocket->>Frontend: Set current desk height to 1100mm
