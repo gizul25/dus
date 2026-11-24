@@ -1,5 +1,7 @@
 # Check-in/check-out system high-level design #13
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 Module responsible for:
 
 - authentication

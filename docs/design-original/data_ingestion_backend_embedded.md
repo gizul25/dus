@@ -1,5 +1,7 @@
 # Design for data ingestion backend-embedded - #92
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 ## High-level design
 
 ### Module features

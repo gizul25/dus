@@ -1,6 +1,9 @@
 # Height Control: embedded design #68
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 ### Research
+> Control box is actually WIFI2BlE box.
 The LINAK Control Box provides access to desk height data through a REST API,
 which contains all the necessary information for monitoring desk height without
 interfering with motor control.

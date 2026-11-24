@@ -1,5 +1,7 @@
 # Height Control: backend design #58
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 ## Desk Height Control
 
 * Pass the height measurements after the height has been changed (for any

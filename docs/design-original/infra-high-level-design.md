@@ -1,5 +1,7 @@
 # Overall high-level infra design #20
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 <img width="1152" height="342" alt="Image" src="https://github.com/user-attachments/assets/a66afb3e-9526-47be-a516-eee6bcaf3066" />
 
 [infra_graph.drawio](https://github.com/user-attachments/files/33046808/infra_graphh.drawio)

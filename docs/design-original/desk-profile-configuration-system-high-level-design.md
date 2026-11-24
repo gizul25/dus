@@ -1,5 +1,7 @@
 # (Desk) profile configuration system high-level design #7
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 ### Module features
 
 - Create desk profiles

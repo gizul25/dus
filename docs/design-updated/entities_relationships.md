@@ -236,7 +236,7 @@ Notification sending will take "Desk session ID", get "User ID", and send notifi
 
 "Time elapsed before pause" is stored when the health reminder is stopped. When it is resumed, it uses paused time elapsed to recalculate "Next reminder timer ID"
 
-TODO: If during health reminder timer period, the user switches their desk from sitting to standing mode, and vice versa, should the timer reset?
+If during health reminder timer period, the user switches their desk from sitting to standing mode, and vice versa, the timer should reset.
 
 ### Actions
 

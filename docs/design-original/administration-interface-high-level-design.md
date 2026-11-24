@@ -1,5 +1,7 @@
 # Administration interface high-level design #8
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 > Assigning workers to fix the task is out of scope.
 
 ## Module features

@@ -1,5 +1,7 @@
 # Sitting/Standing Tracking Design #73
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 - Define how desk height data is collected and compared over time.
 - Define the timer logic for detecting prolonged sitting and resetting after
   height changes.
@@ -21,6 +23,7 @@
   positions. If the desk height falls between these thresholds, the system
   retains its previously confirmed position until the height reaches the
   threshold for the other position.
+> Position detection is obsolete.
 - Filtering fluctuations: Small height adjustments are handled by the configured
   thresholds. A new position is confirmed only after the desk height meets the
   relevant threshold conditions for a defined period, preventing temporary

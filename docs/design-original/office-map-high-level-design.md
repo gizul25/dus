@@ -1,5 +1,7 @@
 # Office map high-level design #11
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 ### Module features
 
 - A 2d map as a overview of all the desks.

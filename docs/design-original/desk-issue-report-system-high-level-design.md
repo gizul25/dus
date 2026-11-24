@@ -1,5 +1,7 @@
 # Module features
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 - Get the overview of all the desks with their respective status; i.e., normal/malfunctioning(if yes, display the error)
 - Search for desks based on the name, associated user, or the specified error(better flexibility for troubleshooting in large workspaces)
 - report malfunctions or collisions of each specific desk in real time(for each desk return the time since last error occurred)

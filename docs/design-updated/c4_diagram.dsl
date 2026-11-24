@@ -27,7 +27,7 @@ workspace "Name" "Description" {
                     office_map_service = component "OfficeMapService" "Responsible for office map page backend."
                     statistics_service = component "StatisticsService" "Responsible for statistics page backend."
                     health_reminder_service = component "HealthReminderService" "Fully responsible for handling all health related functionalities: tracking sitting and standing timers, sending notifications, changing profiles automatically, pausing health timers, and determining middle desk height threshold."
-                    pico_peripherals_service = component "PicoPeripheralsService" "Responsible to track events to desk status and health reminders to set correct desk Pico LED colour, play buzzer sounds, and RFID check-in/check-out."
+                    pico_peripherals_service = component "PicoPeripheralsService" "Responsible to track events to desk status and health reminders to set correct desk Pico LED colour, and RFID check-in/check-out."
                     frontend_telemetry_service = component "FrontendTelemetryService" "Responsible for capturing frontend errors, and sending them to backend to be stored in a database."
                     
                     desk_issue_service -> user_service "Get user"
@@ -72,7 +72,7 @@ workspace "Name" "Description" {
             }
             
             web_app = container "Web Application" "Provides an user interface to get data and perform actions" "User browser, JS/TS, Svelte"
-            raspberry_pi_pico = container "Raspberry Pi Pico" "Gets environmental data, controls LED, buzzer, and handles RFID check-in/check-out" "C/C++"
+            raspberry_pi_pico = container "Raspberry Pi Pico" "Gets environmental data, controls LED, and handles RFID check-in/check-out" "C/C++"
             
             web_app -> load_balancer "Goes through" "HTTPS/WSS"
             
@@ -94,11 +94,11 @@ workspace "Name" "Description" {
             include *
         }
 
-        container ss "Diagram2" {
+        container ss "c4_diagram_container" {
             include *
         }
         
-        component ss.backend_services "Diagram3" {
+        component ss.backend_services "c4_diagram_component" {
             include *
         }
 

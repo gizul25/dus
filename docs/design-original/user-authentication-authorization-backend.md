@@ -1,5 +1,7 @@
 # AA Page: backend design #31
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 ## High-level design
 
 ## Module features

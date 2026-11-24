@@ -1,5 +1,7 @@
 # Web interface high-level design #14
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 ## FEATURES
 
 Sign-in/Sign-out:

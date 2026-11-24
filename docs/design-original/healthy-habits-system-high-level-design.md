@@ -1,5 +1,7 @@
 # Healthy habits system high-level design #9
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 ### Module features
 
 - Tracking Habits by desk height data over time

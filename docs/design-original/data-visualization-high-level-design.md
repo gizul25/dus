@@ -1,5 +1,7 @@
 # Data visualization high-level design #16
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 ## Module features
 
 - Desk data

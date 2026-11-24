@@ -1,5 +1,7 @@
 # Reminder System Design #76
 
+> This design is old and not updated. Please refer to `design-updated/`
+
 #### Purpose and Scope
 
 - Purpose is so that the user can adjust the reminder of the the sit and stand

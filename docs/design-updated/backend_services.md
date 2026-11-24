@@ -54,7 +54,7 @@ Fully owns "Desk issue" entity. Responsible for CRUD for desk issues, sending no
 
 ## Pico peripherals service
 
-Fully owns "Pico peripherals" entity. Responsible to track events to desk status and health reminders to set correct desk Pico LED colour, and play buzzer sounds. It is also responsible for RFID authentication, communicating with desk session service to start new desk session with RFID card.
+Fully owns "Pico peripherals" entity. Responsible to track events to desk status and health reminders to set correct desk Pico LED colour. It is also responsible for RFID authentication, communicating with desk session service to start new desk session with RFID card.
 
 ## Pico environmental data ingestion service
 
