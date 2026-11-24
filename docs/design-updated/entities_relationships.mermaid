@@ -10,14 +10,14 @@ erDiagram
     }
 
     %% use proper connection type
-    WebSocketConnection ||--o{ User : uses
+    WebSocketConnection }o--|| User : uses
     WebSocketConnection {
         string id
         string user_id
     }
 
     Desk ||--o{ DeskProfile : uses
-    Desk ||--o{ DeskCategory : uses
+    Desk }o--|| DeskCategory : uses
     Desk {
         string id
         string name
@@ -31,16 +31,16 @@ erDiagram
         bool is_desk_profile_autocorrection_enabled
     }
 
-    DeskCategory ||--o{ DeskProfile : uses
+    DeskCategory }o--|| DeskProfile : uses
     DeskCategory {
         string id
         string name
         string default_desk_profile_id
     }
 
-    DeskSession ||--o{ User : uses
-    DeskSession ||--o{ Desk : uses
-    DeskSession ||--o{ Timer : uses
+    DeskSession |o--|| User : uses
+    DeskSession |o--|| Desk : uses
+    DeskSession }o--|| Timer : uses
     DeskSession {
         string id
         string user_id
@@ -58,7 +58,7 @@ erDiagram
         duration automatic_desk_association_timeout_duration
     }
 
-    DeskProfile ||--o{ User : uses
+    DeskProfile }o--|| User : uses
     DeskProfile {
         string id
         string user_id
@@ -66,9 +66,9 @@ erDiagram
         int desk_height_mm
     }
 
-    HealthReminder ||--o{ DeskProfile : uses
-    HealthReminder ||--o{ DeskSession : uses
-    HealthReminder ||--o{ Timer : uses
+    HealthReminder }o--|| DeskProfile : uses
+    HealthReminder |o--|| DeskSession : uses
+    HealthReminder }o--|| Timer : uses
     HealthReminder {
         string id
         string desk_session_id
@@ -83,9 +83,9 @@ erDiagram
         bool is_automatic
     }
 
-    HealthReminderPreferences ||--o{ DeskProfile : uses
-    HealthReminderPreferences ||--o{ User : uses
-    HealthReminderPreferences ||--o{ HealthReminder : configures
+    HealthReminderPreferences }o--|| DeskProfile : uses
+    HealthReminderPreferences ||--|| User : uses
+    HealthReminderPreferences ||--o| HealthReminder : configures
     HealthReminderPreferences {
         string id
         string user_id
@@ -98,8 +98,8 @@ erDiagram
         int middle_desk_height_threshold_mm
     }
 
-    DeskIssue ||--o{ Desk : uses
-    DeskIssue ||--o{ User : uses
+    DeskIssue }o--|| Desk : uses
+    DeskIssue }o--o| User : uses
     DeskIssue {
         string id
         string desk_id
@@ -112,7 +112,7 @@ erDiagram
         string? description
     }
 
-    PicoEnvironmentalData ||--o{ Desk : uses
+    PicoEnvironmentalData }o--|| Desk : uses
     PicoEnvironmentalData {
         string id
         string desk_id
@@ -122,10 +122,10 @@ erDiagram
         float light
     }
 
-    LastDeskAPIFetch ||--o{ Desk : uses
+    LastDeskAPIFetch |o--|| Desk : uses
     LastDeskAPIFetch ||--o{ RealtimeDeskAPIData : configures
     LastDeskAPIFetch ||--o{ PeriodicDeskAPIData : configures
-    LastDeskAPIFetch ||--o{ Timer : uses
+    LastDeskAPIFetch }o--|| Timer : uses
     LastDeskAPIFetch {
         string id
         string desk_id
@@ -134,7 +134,7 @@ erDiagram
         int desk_last_fetched_error_time_s
     }
 
-    RealtimeDeskAPIData ||--o{ Desk : uses
+    RealtimeDeskAPIData }o--|| Desk : uses
     RealtimeDeskAPIData {
         string id
         string desk_id
@@ -143,7 +143,7 @@ erDiagram
         int speed_mms
     }
 
-    PeriodicDeskAPIData ||--o{ Desk : uses
+    PeriodicDeskAPIData }o--|| Desk : uses
     PeriodicDeskAPIData {
         string id
         string desk_id

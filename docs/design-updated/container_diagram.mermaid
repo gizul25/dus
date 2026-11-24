@@ -1,31 +1,52 @@
+---
+config:
+  c4:
+    personFontSize: 18
+    systemFontSize: 18
+    containerFontSize: 18
+---
 C4Dynamic
 Person(user, "User", "Standard employee using height-adjustable desks")
 Person(admin, "Administrator", "Configures the system, monitors the system, and resolves desk issues")
 System_Boundary(c1, "Application software system") {
-    Container(web_app, "Web Application", "User browser, JS/TS, Svelte", "TODO")
+    Container(web_app, "Web Application", "User browser, JS/TS, Svelte", "Provides an user interface to get data and perform actions")
     System_Boundary(c2, "Backend") {
-        Container(load_balancer, "Load balancer", "Nginx in development, Kubernetes in production", "TODO")
-        Container(frontend, "Frontend server", "Svelte", "TODO")
+        Container(load_balancer, "Load balancer", "Nginx in development, Kubernetes in production", "Expose website to the network, and split request load between service instances")
+        Container(frontend, "Frontend server", "Svelte", "Serve frontend content")
         Container(apache_kafka, "Apache Kafka", "custom container in dev, apache/kafka in prod", "Responsible for forwarding messages between different services")
-        Container(mqtt_broker, "MQTT Broker", "eclipse-mosquitto", "TODO")
-        Container(mongo_db, "MongoDB", "mongo", "TODO")
-        Container(backend_services, "Backend services", "Python", "TODO")
-        // TODO: Change ID
-        Container(websocket_handler, "WebSocketConnectionService", "Python", "TODO")
+        Container(mqtt_broker, "MQTT Broker", "eclipse-mosquitto", "Communicate with Raspberry Pi Pico with MQTT packets")
+        Container(mongo_db, "MongoDB", "mongo", "Stores all application data")
+        Container(backend_services, "Backend services", "Python", "Performs actions, and provide interface to the database")
+        Container(websocket_connection_service, "WebSocketConnectionService", "Python", "Manages persistent WebSocket connections without termination")
     }
-    Container(raspberry_pi_pico, "Raspberry Pi Pico", "C/C++", "TODO")
+    Container(raspberry_pi_pico, "Raspberry Pi Pico", "C/C++", "Gets environmental data, controls LED, buzzer, and handles RFID check-in/check-out")
 }
-System(desk_rest_api, "Desk REST API server")
+System(desk_rest_api, "Desk REST API server", "LINAK height-adjustable desks")
 
 Rel(user, web_app, "Uses", "HTTPS/WSS")
 Rel(admin, web_app, "Uses", "HTTPS/WSS")
-Rel(web_app, load_balancer, "TODO", "HTTPS/WSS")
-Rel(load_balancer, websocket_handler, "TODO", "WSS")
-Rel(load_balancer, backend_services, "TODO", "HTTPS")
-Rel(load_balancer, frontend, "TODO", "HTTPS")
-Rel(backend_services, mqtt_broker, "TODO", "TCP TLS")
-Rel(backend_services, apache_kafka, "TODO", "TCP")
-Rel(backend_services, mongo_db, "TODO", "TODO")
-Rel(backend_services, desk_rest_api, "TODO", "HTTPS")
-Rel(websocket_handler, mongo_db, "TODO", "TODO")
-Rel(mqtt_broker, raspberry_pi_pico, "TODO", "TCP TLS")
+Rel(web_app, load_balancer, "Goes through", "HTTPS/WSS")
+Rel(load_balancer, websocket_connection_service, "Set/get realtime messages", "WSS")
+Rel(load_balancer, backend_services, "Get data and perform actions", "HTTPS")
+Rel(load_balancer, frontend, "Get website assets", "HTTPS")
+Rel(backend_services, mqtt_broker, "Change Pico status and get data", "TCP TLS")
+Rel(backend_services, apache_kafka, "Push/pull messages to/from other services", "TCP")
+Rel(backend_services, mongo_db, "Store data", "TCP")
+Rel(backend_services, desk_rest_api, "Control desk height and get data", "HTTPS")
+Rel(websocket_connection_service, mongo_db, "Store data", "TCP")
+Rel(websocket_connection_service, apache_kafka, "Send/get WebSocket messages", "TCP")
+Rel(mqtt_broker, raspberry_pi_pico, "Change Pico status and get data", "TCP TLS")
+
+UpdateRelStyle(user, web_app, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(admin, web_app, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(web_app, load_balancer, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(load_balancer, websocket_connection_service, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(load_balancer, backend_services, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(load_balancer, frontend, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(backend_services, mqtt_broker, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(backend_services, apache_kafka, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(backend_services, mongo_db, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(backend_services, desk_rest_api, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(websocket_connection_service, mongo_db, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(websocket_connection_service, apache_kafka, "#c4c4c4", "#c4c4c4")
+UpdateRelStyle(mqtt_broker, raspberry_pi_pico, "#c4c4c4", "#c4c4c4")
