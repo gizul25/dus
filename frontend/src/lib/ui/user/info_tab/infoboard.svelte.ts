@@ -116,6 +116,7 @@ class Infoboard {
             sittingMin: me.sitting_min,
             deskId: me.desk_id,
         };
+        
         this.desks = (deskList as any[]).map((d) => ({
             id: d.id,
             occupied: d.occupied,
@@ -125,7 +126,7 @@ class Infoboard {
             errors: d.errors,
             warnings: d.warnings,
         }));
-
+        
         const live = new Set(this.desks.map((d) => d.id));
         this.selectedIds = this.selectedIds.filter((id) => live.has(id));
 

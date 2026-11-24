@@ -92,12 +92,14 @@ doc = {
 }
 db["periods"].insert_one(doc)
 
+
+
 doc = {
     "_id": str(uuid.uuid4()),
     "message": "null pointer",
     "source": "manual",
     "severity": "warning",
-    "context": "D-01",
+    "context": {"desk_id": "D-01"},
     "received_at": datetime.now(timezone.utc),
 }
 db["frontend_errors"].insert_one(doc)
@@ -106,7 +108,7 @@ doc = {
     "message": "test warning",
     "source": "manual",
     "severity": "warning",
-    "context": "D-05",
+    "context": {"desk_id": "D-05"},
     "received_at": datetime.now(timezone.utc),
 }
 db["frontend_errors"].insert_one(doc)
@@ -115,7 +117,7 @@ doc = {
     "message": "test warning",
     "source": "manual",
     "severity": "warning",
-    "context": "D-03",
+    "context": {"desk_id": "D-03"},
     "received_at": datetime.now(timezone.utc),
 }
 db["frontend_errors"].insert_one(doc)
@@ -124,7 +126,7 @@ doc = {
     "message": "test warning",
     "source": "manual",
     "severity": "warning",
-    "context": "D-05",
+    "context": {"desk_id": "D-05"},
     "received_at": datetime.now(timezone.utc),
 }
 db["frontend_errors"].insert_one(doc)
@@ -133,7 +135,7 @@ doc = {
     "message": "Black hole showed up and eaten half of the desk",
     "source": "manual",
     "severity": "error",
-    "context": "D-05",
+    "context": {"desk_id": "D-05"},
     "received_at": datetime.now(timezone.utc),
 }
 db["frontend_errors"].insert_one(doc)
