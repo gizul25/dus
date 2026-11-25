@@ -3,7 +3,6 @@
 	import * as DropdownMenu from '#lib/components/ui/dropdown-menu/index.js';
 	import { goto } from '$app/navigation';
 	import PasswordChangeDialog from './PasswordChangeDialog.svelte';
-	import SidebarGroupContent from '#lib/components/ui/sidebar/sidebar-group-content.svelte';
     import { RiDashboardLine, RiMap2Line, RiBarChartBoxLine, RiErrorWarningLine, RiUser3Line } from "remixicon-svelte";
 
 	let errorMessage = $state('');
@@ -30,11 +29,9 @@
 </script>
 
 <Sidebar.Root collapsible="icon" variant="inset">
-	<Sidebar.Header />
 		<Sidebar.Content>
 			<Sidebar.Group>
 				<Sidebar.Menu>
-
 					<Sidebar.MenuItem>
 						<Sidebar.MenuButton>
 							{#snippet child({ props })}

@@ -1,9 +1,9 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import * as Sidebar from "#lib/components/ui/sidebar/index.js";
-    import AppSidebar from "#lib/ui/user/sidebar/AppSidebar.svelte";
-	import { Inset } from '../../../lib/components/ui/sidebar';
-    
+    import AppSidebar from "#lib/ui/user/layout/AppSidebar.svelte";
+    import NotificationPopover from '#lib/ui/user/layout/NotificationPopover.svelte'; 
+
     let { children } = $props();
     let user = $state(null);
 	let errorMessage = $state('');
@@ -32,11 +32,12 @@
 
 <Sidebar.Provider open={false}>
   <AppSidebar {user} />
-  <Sidebar.Inset>
-    <header class="flex h-10 items-center px-2">
+  <Sidebar.Inset class="bg-muted">
+    <header class="flex h-10 items-center px-2 justify-between">
         <Sidebar.Trigger />
+        <NotificationPopover />
     </header>
-    <main class="flex-1 px-6 pb-6">
+    <main class="flex-1 px-10 pb-6">
         {@render children?.()}
     </main>
   </Sidebar.Inset>
