@@ -2,14 +2,15 @@
 	import * as Card from '#lib/components/ui/card';
 	import { Separator } from '#lib/components/ui/separator';
 	import PieChart from './PieChart.svelte';
-	import type { CurrentUser } from './types';
+	import type { CurrentUser, SessionStatus } from './types';
 	import { fmtDuration } from './metrics';
 
 	interface Props {
 		user: CurrentUser;
+		sessionDurationMin: number;
 	}
-	
-	let { user }: Props = $props();
+
+	let { user, sessionDurationMin }: Props = $props();
 
 	const initials = $derived(
 		user.name
@@ -22,6 +23,33 @@
 	const totalTracked = $derived(user.standingMin + user.sittingMin);
 	const standShare = $derived(totalTracked > 0 ? (user.standingMin / totalTracked) * 100 : 0);
 	const sitShare = $derived(100 - standShare);
+
+	const statusBadge: Record<SessionStatus, { label: string; cls: string }> = {
+		online: {
+			label: 'Online',
+			cls: 'border-emerald-500/30 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+		},
+		away: {
+			label: 'Away',
+			cls: 'border-amber-500/30 bg-amber-500/15 text-amber-600 dark:text-amber-400'
+		},
+		'do not disturb': {
+			label: 'DND',
+			cls: 'border-destructive/30 bg-destructive/15 text-destructive'
+		}
+	};
+
+	const statusInfo = $derived(user.status ? statusBadge[user.status] : null);
+
+	const sessionLine = $derived.by(() => {
+		if (!user.deskId) {
+			return 'not checked in';
+		}
+		if (sessionDurationMin > 0) {
+			return `at ${user.deskId} · ${fmtDuration(sessionDurationMin)}`;
+		}
+		return `at ${user.deskId}`;
+	});
 </script>
 
 {#snippet statChip(label: string, value: string, cls: string)}
@@ -50,8 +78,17 @@
 				{initials}
 			</div>
 			<div>
-				<h1 class="text-lg font-semibold leading-tight">{user.name}</h1>
-				<p class="mt-0.5 text-xs text-muted-foreground">Personal desk usage · today</p>
+				<h1 class="flex items-center gap-2 text-lg font-semibold leading-tight">
+					{user.name}
+					{#if statusInfo}
+						<span
+							class="inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wider {statusInfo.cls}"
+						>
+							{statusInfo.label}
+						</span>
+					{/if}
+				</h1>
+				<p class="mt-0.5 text-xs text-muted-foreground">{sessionLine}</p>
 			</div>
 		</div>
 
@@ -71,7 +108,7 @@
 					width={100}
 					height={100}
 					radius={40}
-					background="#FFFFFF"
+					background="transparent"
 					data={[standShare, sitShare]}
 				/>
 				<div

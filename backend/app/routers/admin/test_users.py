@@ -8,8 +8,7 @@ profile = [{
     'first_name': 'Testing', 
     'last_name': 'Admin', 
     'email': 'admin@example.com', 
-    'role': 'admin',  
-    "desk_id": "D-42"
+    'role': 'admin'
 }]
 
 @pytest.fixture
@@ -26,8 +25,7 @@ def test_admin(db):
         "last_name": "Admin",
         "email": "admin@example.com",
         "password": PasswordHasher().hash(password),
-        "role": "admin",
-        "desk_id": "D-42",
+        "role": "admin"
     }
     db["users"].insert_one(user)
     return user
@@ -36,7 +34,7 @@ def test_admin(db):
 async def test_login_as_admin(client, test_admin):
     response = await client.post(
         "/auth/login",
-        json={"email": "admin@example.com", "password": "test123", "mode": "admin",  "desk_id": "D-42"},
+        json={"email": "admin@example.com", "password": "test123", "mode": "admin"},
     )
     assert response.status_code == 200
     response = await client.get("/admin/users/")
@@ -53,8 +51,7 @@ async def test_user_post(client, test_admin):
         "last_name": "tree",
         "email": "woody@supa.ch",
         "password": PasswordHasher().hash("password"),
-        "role": "user",
-        "desk_id": "D-42",
+        "role": "user"
     })
     print(response.text)
     assert response.status_code == 201
@@ -84,8 +81,7 @@ async def test_user_delete(client, test_admin):
         "last_name": "tree",
         "email": "woody@supa.ch",
         "password": PasswordHasher().hash("password"),
-        "role": "user",  
-        "desk_id": "D-42"
+        "role": "user"
     })
     print(response.text)
     assert response.status_code == 201
@@ -125,8 +121,7 @@ async def test_user_put(client, test_admin):
         "last_name": "tree",
         "email": "woody@supa.ch",
         "password": PasswordHasher().hash("password"),
-        "role": "user",  
-        "desk_id": "D-42"
+        "role": "user"
     })
     print(response.text)
     assert response.status_code == 201
@@ -141,8 +136,7 @@ async def test_user_put(client, test_admin):
         "last_name": "tree",
         "email": "woody@supa.ch",
         "password": PasswordHasher().hash("password"),
-        "role": "user",  
-        "desk_id": "D-42"
+        "role": "user"
     })
     print(response.text)
     assert response.status_code == 200
@@ -158,8 +152,7 @@ async def test_user_put_fail(client, test_admin):
         "last_name": "tree",
         "email": "woody@supa.ch",
         "password": PasswordHasher().hash("password"),
-        "role": "user",  
-        "desk_id": "D-42"
+        "role": "user"
     })
     print(response.text)
     assert response.status_code == 201

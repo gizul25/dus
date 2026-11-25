@@ -2,7 +2,7 @@
 	import * as Card from '#lib/components/ui/card';
 	import * as ToggleGroup from '#lib/components/ui/toggle-group';
 	import ColumnChart, { type ChartGroup, type ChartSeries } from './ColumnChart.svelte';
-	import type { Desk, MetricKey } from './types';
+	import type { Desk, MetricKey, Timeframe } from './types';
 	import { metrics } from './metrics';
 
 	interface Props {
@@ -10,9 +10,18 @@
 		currentDeskId: string | null;
 		activeMetrics: MetricKey[];
 		maxByMetric: Record<MetricKey, number>;
+		timeframe: Timeframe;
 		onMetricsChange: (keys: MetricKey[]) => void;
 	}
-	let { desks, currentDeskId, activeMetrics, maxByMetric, onMetricsChange }: Props = $props();
+	let { desks, currentDeskId, activeMetrics, maxByMetric, timeframe, onMetricsChange }: Props =
+		$props();
+
+	const timeframeLabel: Record<Timeframe, string> = {
+		today: 'today',
+		week: 'last 7 days',
+		month: 'last 30 days',
+		all: 'all time'
+	};
 
 	const groups = $derived<ChartGroup[]>(
 		desks.map((d) => ({
@@ -35,7 +44,7 @@
 		<div class="flex items-baseline justify-between gap-3">
 			<Card.Title class="text-sm">Comparison</Card.Title>
 			<span class="text-xs tabular-nums text-muted-foreground">
-				{desks.length} desk(s)
+				{desks.length} desk(s) · {timeframeLabel[timeframe]}
 			</span>
 		</div>
 	</Card.Header>

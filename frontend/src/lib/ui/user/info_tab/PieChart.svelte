@@ -13,7 +13,7 @@
 		height = 100,
 		radius = 40,
 		data,
-		background = '000000',
+		background = 'transparent',
 		strokeWidth = 14
 	}: Props = $props();
 
@@ -27,7 +27,7 @@
 	}
 
 	$effect(() => {
-		colors = getCssColors(['--chart-1', '--chart-2', '--chart-3', '--chart-4', '--chart-5']);
+		colors = getCssColors(['--chart-1', '--chart-2', '--chart-3', '--chart-4', '--chart-5', '--chart-6', '--chart-7']);
 	});
 
 	const cx = $derived(width / 2);
