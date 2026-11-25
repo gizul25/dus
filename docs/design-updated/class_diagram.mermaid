@@ -1,0 +1,290 @@
+classDiagram
+    class BankAccount
+    BankAccount : +String owner
+    BankAccount : +Bigdecimal balance
+    BankAccount : +deposit(amount)
+    BankAccount : +withdrawal(amount)
+
+    class User {
+        -string id
+        -string first_name
+        -string last_name
+        -string email
+        -string password_hash
+        -string role
+        -string? user_card_id
+        +get_users(offset: int, limit: int) User[]
+        +get_user(id: string) User
+        +create_user(data: User) string
+        +update_user(id: string, data: User)
+        +delete_user(id: string)
+        +login(id: string)
+        +logout(id: string)
+        +update_password(id: string, new_password: string)
+    }
+
+    WebSocketConnection "0..*" --* "1" User : uses
+    class WebSocketConnection {
+        -string id
+        -string user_id
+        +get_websocket_connection(id: string) WebSocketConnection
+        +add_websocket_connection(id: string, user_id: string) WebSocketConnection
+        +remove_websocket_connection(id: string)
+        +send_multicast_websocket_message(id: string, message: string)
+    }
+
+    Desk "1" --o "0..*" DeskProfile : uses
+    Desk "0..*" --* "1" DeskCategory : uses
+    class Desk {
+        -string id
+        -string name
+        -string rest_api_url
+        -int min_height_mm
+        -int max_height_mm
+        -string desk_category_id
+        -int? manually_changed_desk_height_mm
+        -string? current_desk_profile_id
+        -string? pending_desk_profile_id
+        -bool is_desk_profile_autocorrection_enabled
+        +get_desks(offset: int, limit: int) Desk[]
+        +get_desk(id: string) Desk
+        +get_full_desk(id: string) Desk
+        +create_desk(data: Desk) string
+        +update_desk(id: string, data: Desk)
+        +delete_desk(id: string)
+        +set_manually_changed_desk_height(id: string, manually_changed_desk_height: int?)
+        +set_new_desk_profile(desk_profile_id: string?)
+        +set_desk_profile_autocorrection(id: string, desk_profile_autocorrection_enabled: bool)
+    }
+
+    DeskCategory "0..*" --* "1" DeskProfile : uses
+    class DeskCategory {
+        -string id
+        -string name
+        -string default_desk_profile_id
+        +get_desk_categories(offset: int, limit: int) DeskCategory[]
+        +get_desk_category(id: string) DeskCategory
+        +create_desk_category(data: DeskCategory) string
+        +update_desk_category(id: string, data: DeskCategory)
+        +delete_desk_category(id: string)
+    }
+
+    DeskSession "0..1" --* "1" User : uses
+    DeskSession "0..1" --* "1" Desk : uses
+    DeskSession "0..*" --o "1" Timer : uses
+    class DeskSession {
+        -string id
+        -string user_id
+        -string desk_id
+        -string status
+        -timestamp started_at
+        -timestamp finished_at
+        -string finished_reason
+        -string automatic_timeout_notification_timer_id
+        -string automatic_timeout_action_timer_id
+        +get_desk_sessions(offset: int, limit: int): DeskSession[]
+        +get_desk_session(id: string) DeskSession
+        +get_user_desk_session(user_id: string) DeskSession
+        +set_status(id: string, new_status: string)
+        +check_in(user_id: string, desk_id: string) string
+        +check_out(id: string)
+        +check_out_user(user_id: string)
+        +check_out_desk(desk_id: string)
+    }
+
+    DeskSessionConfig "1" --o "0..*" DeskSession : configures
+    class DeskSessionConfig {
+        -duration automatic_desk_association_timeout_duration
+        +get_config() DeskSessionConfig
+        +update_config(new_config: DeskSessionConfig)
+    }
+
+    DeskProfile "0..*" --* "1" User : uses
+    class DeskProfile {
+        -string id
+        -string user_id
+        -string name
+        -int desk_height_mm
+        +get_user_desk_profiles(user_id: string, offset: int, limit: int) DeskProfile[]
+        +get_desk_profile(id: string) DeskProfile
+        +create_desk_profile(data: DeskProfile) string
+        +update_desk_profile(id: string, data: DeskProfile)
+        +delete_desk_profile(id: string)
+    }
+
+    HealthReminder "0..*" --* "1" DeskProfile : uses
+    HealthReminder "0..*" --* "1" DeskSession : uses
+    HealthReminder "0..*" --* "1" Timer : uses
+    class HealthReminder {
+        -string id
+        -string desk_session_id
+        -timestamp started_at
+        -duration time_elapsed_before_pause
+        -bool is_paused
+        -bool is_away_paused
+        -bool is_user_paused
+        -string next_reminder_timer_id
+        -string next_desk_profile_id
+        -string automatic_warning_timer_id
+        -bool is_automatic
+        +get_health_reminder(id: string) HealthReminder
+        +get_user_health_reminder(user_id: string) HealthReminder
+        +get_desk_session_health_reminder(desk_session_id: string) HealthReminder
+        +set_is_user_paused(id: string, is_user_paused: bool)
+        +cancel_health_reminder(id: string)
+    }
+
+    HealthReminderPreferences "0..*" --* "1" DeskProfile : uses
+    HealthReminderPreferences "1" --* "1" User : uses
+    HealthReminderPreferences "1" --o "0..1" HealthReminder : configures
+    class HealthReminderPreferences {
+        -string id
+        -string user_id
+        -duration sitting_duration
+        -string main_sitting_desk_profile_id
+        -duration standing_duration
+        -string main_standing_desk_profile_id
+        -duration warning_duration
+        -bool is_automatic
+        -int middle_desk_height_threshold_mm
+        +get_health_reminder_preferences(id: string) HealthReminderPreferences
+        +get_user_health_reminder_preferences(user_id: string) HealthReminderPreferences
+        +create_health_reminder_preferences(data: HealthReminderPreferences) string
+        +update_health_reminder_preferences(id: string, data: HealthReminderPreferences)
+        +delete_health_reminder_preferences(id: string)
+    }
+
+    DeskIssue "0..*" --* "1" Desk : uses
+    DeskIssue "0..*" --o "0..1" User : uses
+    class DeskIssue {
+        -string id
+        -string desk_id
+        -string? reporter_user_id
+        -timestamp created_at
+        -timestamp resolved_at
+        -string severity
+        -int? error_code
+        -string? title
+        -string? description
+        +get_desk_issues(query: string, offset: int, limit: int) DeskIssue[]
+        +get_desk_issue(id: string) DeskIssue
+        +create_desk_issue(data: DeskIssue) string
+        +update_desk_issue(id: string, data: DeskIssue)
+        +mark_as_resolved(id: string)
+    }
+
+    PicoEnvironmentalData "0..*" --* "1" Desk : uses
+    class PicoEnvironmentalData {
+        -string id
+        -string desk_id
+        -timestamp timestamp
+        -float temperature_celsius
+        -float humidity
+        -float light
+        +get_desk_latest_temperature(desk_id: string) PicoEnvironmentalData
+        +get_desk_latest_humidity(desk_id: string) PicoEnvironmentalData
+        +get_desk_latest_light(desk_id: string) PicoEnvironmentalData
+    }
+
+    LastDeskAPIFetch "0..1" --* "1" Desk : uses
+    LastDeskAPIFetch "1" --o "0..*" RealtimeDeskAPIData : configures
+    LastDeskAPIFetch "1" --o "0..*" PeriodicDeskAPIData : configures
+    LastDeskAPIFetch "0..*" --* "1" Timer : uses
+    class LastDeskAPIFetch {
+        +string id
+        +string desk_id
+        +string next_realtime_desk_fetch_timer_id
+        +string next_periodic_desk_fetch_timer_id
+        +int desk_last_fetched_error_time_s
+    }
+
+    RealtimeDeskAPIData "0..*" --* "1" Desk : uses
+    class RealtimeDeskAPIData {
+        +string id
+        +string desk_id
+        +timestamp timestamp
+        +int desk_height_mm
+        +int speed_mms
+    }
+
+    PeriodicDeskAPIData "0..*" --* "1" Desk : uses
+    class PeriodicDeskAPIData {
+        +string id
+        +string desk_id
+        +string device_name
+        +string manufacturer
+        +string status
+        +bool is_position_lost
+        +bool is_overload_protection_up
+        +bool is_overload_protection_down
+        +bool is_anti_collision
+    }
+
+    class FrontendTelemetry {
+        +string id
+        +timestamp occured_at
+        +timestamp received_at
+        +string error_message
+        +string? stack_trace
+        +string? source
+        +string url
+        +string user_agent
+        +string[]? context
+        +string? client_host
+        +string? request_id
+    }
+
+    class Timer {
+        -string id
+        -timestamp trigger_timestamp
+        +create_timer(timestamp: timestamp) string
+        +delete_timer(id: string)
+    }
+
+    Statistics "1" --o "0..*" RealtimeDeskAPIData : uses
+    Statistics "1" --o "0..*" DeskSession : uses
+    Statistics "1" --o "0..*" PicoEnvironmentalData : uses
+    Statistics "1" --o "0..*" DeskIssue : uses
+    class Statistics {
+        +get_desk_height(time_period: TimePeriod, user_id: string) data
+        +get_desk_speed(time_period: TimePeriod, user_id: string) data
+        +get_desk_utilization(time_period: TimePeriod, desk ID) data
+        +get_average_temperature(time_period: TimePeriod) data
+        +get_average_humidity(time_period: TimePeriod) data
+        +get_average_light(time_period: TimePeriod) data
+        +get_desk_issues(time_period: TimePeriod) data
+    }
+
+    OfficeMap "1" --o "0..*" Desk : uses
+    OfficeMap "1" --o "0..*" DeskSession : uses
+    OfficeMap "1" --o "0..*" PicoEnvironmentalData : uses
+    OfficeMap "1" --o "0..*" DeskIssue : uses
+    class OfficeMap {
+        -Layer[] layers
+        -string layers.id
+        -string layers.name
+        -Bounds layers.bounds
+        -Rectangle[] layers.rectangles
+        -string layers.rectangles.id
+        -Vector2 layers.rectangles.position
+        -Vector2 layers.rectangles.size
+        -float layers.rectangles.rotation
+        -string layers.rectangles.desk_id
+        +get_layers(offset: int, limit: int) Layer[]
+        +get_layer(id: string) Layer
+        +create_layer(data: Layer) string
+        +update_layer(id: string, data: Layer)
+        +delete_layer(id: string)
+        +search_user(query: string) data
+        +search_desk(query: string) data
+        +get_occupancy_data(layer_id: string, time_period: TimePeriod) data
+        +get_temperature_data(layer_id: string, time_period: TimePeriod) data
+        +get_humidity_data(layer_id: string, time_period: TimePeriod) data
+        +get_light_data(layer_id: string, time_period: TimePeriod) data
+    }
+
+    PicoPeripherals "1" --o "0..*" DeskSession : uses
+    PicoPeripherals "1" --o "0..*" HealthReminder : uses
+    class PicoPeripherals {
+    }
+
