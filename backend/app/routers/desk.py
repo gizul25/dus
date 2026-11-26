@@ -9,8 +9,11 @@ from ..desk_tracking import (
     TimerProfile,
     TimerProfileInput,
     TimerProfileRegistry,
+    DeskStatusRepository,
+    UserStatusRepository
     DeskPosition
 )
+from ..check_in_out import CheckInOutSystem
 
 from ..desk_reminder import (
     get_saved_preferences,
@@ -24,6 +27,10 @@ from ..desk_reminder import enable_reminder
 router = APIRouter(prefix="/desk", tags=["desk"])
 tracker = DeskTracker()
 profile_registry = TimerProfileRegistry(tracker.profile)
+
+desk_statuses = DeskStatusRepository()
+user_statuses = UserStatusRepository()
+check_in_out_system = CheckInOutSystem(desk_statuses, user_statuses)
 
 
 @router.get("/profile", response_model=TimerProfile)
@@ -119,3 +126,15 @@ async def read_sitting_periods(limit: int | None = None) -> list[SittingPeriod]:
 @router.get("/status", response_model=DeskStatus)
 async def read_status() -> DeskStatus:
     return tracker.status()
+
+
+@router.post("/{desk_id}/checkin", response_model=bool)
+async def checkin(desk_id: str):
+    user_id = None # TODO: once, auth merges, use auth wrapper
+    return check_in_out_system.checkin(desk_id, user_id)
+
+
+@router.post("/{desk_id}/checkout", response_model=bool)
+async def checkout(desk_id: str):
+    user_id = None # TODO: once, auth merges, use auth wrapper
+    return check_in_out_system.checkout(desk_id, user_id)

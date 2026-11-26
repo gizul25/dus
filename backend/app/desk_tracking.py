@@ -131,6 +131,7 @@ class SittingPeriodRepository:
 
 
 class DeskStatus(BaseModel):
+    id: str
     height_cm: float | None
     position: DeskPosition | None
     sitting_seconds: float
@@ -140,6 +141,80 @@ class DeskStatus(BaseModel):
     timer_overdue: bool
     reminder_due: bool
     last_reading_at: datetime | None
+    current_user_id: str | None
+
+
+class DeskStatusRepository:
+    def __init__(self):
+        self._statuses: dict[str, DeskStatus] = {}
+
+    def create(self, status: DeskStatus) -> bool:
+        if status.id in self._statuses:
+            return False
+        self._statuses[status.id] = status
+        return True
+    
+    def get(self, id: str) -> DeskStatus | None:
+        if not id in self._statuses:
+            return None
+        return self._statuses[id]
+
+    def update(self, status: DeskStatus) -> bool:
+        if not status.id in self._statuses:
+            return False
+        self._statuses[status.id] = status
+        return True
+    
+    def delete(self, id: str) -> bool:
+        if not id in self._statuses:
+            return False
+        del self._statuses[id]
+        return True
+
+    def list(self, limit: int | None = None) -> list[DeskStatus]:
+        items = list(self._statuses)
+        if limit is not None:
+            return items[-limit:]
+        return items
+
+
+class UserStatus(BaseModel):
+    id: str
+    current_desk_id: str | None
+
+
+class UserStatusRepository:
+    def __init__(self):
+        self._statuses: dict[str, UserStatus] = {}
+
+    def create(self, status: UserStatus) -> bool:
+        if status.id in self._statuses:
+            return False
+        self._statuses[status.id] = status
+        return True
+    
+    def get(self, id: str) -> UserStatus | None:
+        if not id in self._statuses:
+            return None
+        return self._statuses[id]
+
+    def update(self, status: UserStatus) -> bool:
+        if not status.id in self._statuses:
+            return False
+        self._statuses[status.id] = status
+        return True
+    
+    def delete(self, id: str) -> bool:
+        if not id in self._statuses:
+            return False
+        del self._statuses[id]
+        return True
+
+    def list(self, limit: int | None = None) -> list[UserStatus]:
+        items = list(self._statuses)
+        if limit is not None:
+            return items[-limit:]
+        return items
 
 
 class DeskTracker:
@@ -158,6 +233,7 @@ class DeskTracker:
         self.pending_position_since: datetime | None = None
         self.reminder_triggered = False
         self.current_period: SittingPeriod | None = None
+        self.current_user_id = None
 
     def update_profile(self, profile: TimerProfile) -> None:
         self.profile = profile
@@ -219,6 +295,7 @@ class DeskTracker:
             reminder_due = False
 
         return DeskStatus(
+            id="temporary",
             height_cm=self.height_cm,
             position=self.position,
             sitting_seconds=self.sitting_seconds,
@@ -228,6 +305,7 @@ class DeskTracker:
             timer_overdue=(target_seconds is not None and self.position_seconds >= target_seconds),
             reminder_due=reminder_due,
             last_reading_at=self.last_reading_at,
+            current_user_id=self.current_user_id,
         )
 
     def _commit_position_change(self, new_position: DeskPosition, timestamp: datetime) -> None:
@@ -265,3 +343,5 @@ class DeskTracker:
         if height_cm >= self.profile.standing_min_height_cm:
             return DeskPosition.STANDING
         return None
+
+
