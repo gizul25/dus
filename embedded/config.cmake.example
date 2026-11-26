@@ -1,0 +1,5 @@
+set(WIFI_SSID your_ssid)
+set(WIFI_PASSWORD your_password)
+set(MQTT_SERVER ametrine.test)
+set(SERVER_CN ametrine.test)
+set(MQTT_CLIENT_NAME pico123)

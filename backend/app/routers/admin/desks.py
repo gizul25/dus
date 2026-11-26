@@ -4,7 +4,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 from fastapi import APIRouter, Body, Request, Response, Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
-from ...dependencies import get_token_header
+from ...dependencies import get_current_admin
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(
     prefix="/admin/desks",
     tags=["admin"],
+    dependencies=[Depends(get_current_admin)],
     responses={404: {"description": "Not found"}},
 )
 

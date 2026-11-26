@@ -80,6 +80,16 @@ bin/kafka-topics.sh --create --topic websocket-messages-client --bootstrap-serve
 bin/kafka-topics.sh --create --topic websocket-messages-server --bootstrap-server localhost:9092
 ```
 
+## Embedded height control tests
+
+The embedded height-control module has a standalone GoogleTest suite. Build and run it with CMake:
+
+```bash
+cmake -S embedded -B embedded/build
+cmake --build embedded/build
+ctest --test-dir embedded/build --output-on-failure
+```
+
 ## WS
 
 - Websocket receive is basically immediate on dev machine. Text updates immediately, but `console.log` in browser is delayed roughly ~0.5s. Might be because I used software rendering for the browser.

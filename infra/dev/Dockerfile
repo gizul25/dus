@@ -39,5 +39,9 @@ tar -xzf kafka_2.13-4.3.1.tgz
 EOF
 WORKDIR /app
 
+# Playwright deps
+RUN <<EOF
+sudo apt install -y libatk1.0-0 libatk-bridge2.0-0 xorg libxkbcommon0
+EOF
 
 CMD ["/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait"]
