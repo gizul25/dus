@@ -1,10 +1,29 @@
+import ssl
 from contextlib import asynccontextmanager
 
+from ssl import SSLContext
+from os import path
 from fastapi import FastAPI
 from fastapi_mqtt.config import MQTTConfig 
 from fastapi_mqtt.fastmqtt import FastMQTT
 
-fast_mqtt = FastMQTT(config = MQTTConfig())
+cert_path = "app/bridge/certs/dus.test.com"
+
+ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+
+ssl_context.load_cert_chain(certfile=path.relpath(path.join(cert_path,'client.crt')),
+                                                    keyfile=path.relpath(path.join(cert_path,'client.key')))
+ssl_context.check_hostname = False
+
+
+mqtt_config = MQTTConfig(
+        host = "dus.test.com",
+        port = 8883,
+        ssl= ssl_context,
+        keepalive=300,)
+
+
+fast_mqtt = FastMQTT(config=mqtt_config)
 
 @asynccontextmanager
 async def _lifespan(_app: FastAPI):
@@ -12,7 +31,7 @@ async def _lifespan(_app: FastAPI):
     yield
     await fast_mqtt.mqtt_shutdown()
 
-app = FastAPI(lifespan=_lifespan)
+bridge_app = FastAPI(lifespan=_lifespan)
 
 @fast_mqtt.on_connect()
 def connect(client, flags, rc, properties):
@@ -41,7 +60,7 @@ def subscribe(client, mid, qos, properties):
     print("subscribed", client, mid, qos, properties)
 
 
-@app.get("/")
+@bridge_app.get("/")
 async def func():
     fast_mqtt.publish("mqtt", "Hello from Fastapi")  # publishing mqtt topic
 
