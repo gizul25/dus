@@ -2,7 +2,8 @@
     let text = $state("");
 	let msg = $state("");
 
-	var ws = new WebSocket('ws://localhost:8080/ws');
+	const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+	var ws = new WebSocket(`${protocol}//${location.host}/ws`);
 	ws.onmessage = function (event) {
 		msg = event.data
         console.log('onmessage', event)
