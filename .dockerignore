@@ -1,0 +1,16 @@
+.git
+.idea
+.vscode
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/.venv
+**/.venv-*
+**/node_modules
+**/build
+**/dist
+**/coverage
+**/.svelte-kit
+**/playwright-report
+**/test-results
