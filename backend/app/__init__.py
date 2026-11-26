@@ -3,8 +3,9 @@ import logging
 import os
 
 import pymongo
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from pymongo.errors import PyMongoError
 
 from .dependencies import get_current_user
 from .routers import telemetry, desk, user, auth
@@ -47,8 +48,15 @@ async def lifespan(app: FastAPI):
 
 
 def make_app(lifespan):
+    @asynccontextmanager
+    async def managed_lifespan(app: FastAPI):
+        async with lifespan(app):
+            if getattr(app, "db", None) is not None:
+                desk.restore_desk_state(app.db)
+            yield
+
     app = FastAPI(
-        lifespan=lifespan,
+        lifespan=managed_lifespan,
     )
 
     app.include_router(telemetry.router)
@@ -63,6 +71,19 @@ def make_app(lifespan):
     @app.get("/")
     async def root():
         return {"message": "Hello from backend!"}
+
+    @app.get("/healthz/live")
+    async def liveness():
+        return {"status": "ok"}
+
+    @app.get("/healthz/ready")
+    async def readiness(request: Request):
+        try:
+            request.app.db.command("ping")
+        except PyMongoError as exc:
+            logger.warning("MongoDB readiness check failed: %s", exc)
+            raise HTTPException(status_code=503, detail="database unavailable") from exc
+        return {"status": "ok"}
 
     return app
 
