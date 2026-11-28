@@ -1,0 +1,204 @@
+erDiagram
+    User {
+        string id
+        string first_name
+        string last_name
+        string email
+        string password_hash
+        string role
+        string? user_card_id
+    }
+
+    WebSocketConnection }o--|| User : uses
+    WebSocketConnection {
+        string id
+        string user_id
+    }
+
+    Desk ||--o{ DeskProfile : uses
+    Desk }o--|| DeskCategory : uses
+    Desk {
+        string id
+        string name
+        string rest_api_url
+        int min_height_mm
+        int max_height_mm
+        string desk_category_id
+        int? manually_changed_desk_height_mm
+        string? current_desk_profile_id
+        string? pending_desk_profile_id
+        bool is_desk_profile_autocorrection_enabled
+    }
+
+    DeskCategory }o--|| DeskProfile : uses
+    DeskCategory {
+        string id
+        string name
+        string default_desk_profile_id
+    }
+
+    DeskSession |o--|| User : uses
+    DeskSession |o--|| Desk : uses
+    DeskSession }o--|| Timer : uses
+    DeskSession {
+        string id
+        string user_id
+        string desk_id
+        string status
+        timestamp started_at
+        timestamp finished_at
+        string finished_reason
+        string automatic_timeout_notification_timer_id
+        string automatic_timeout_action_timer_id
+    }
+
+    DeskSessionConfig ||--o{ DeskSession : configures
+    DeskSessionConfig {
+        duration automatic_desk_association_timeout_duration
+    }
+
+    DeskProfile }o--|| User : uses
+    DeskProfile {
+        string id
+        string user_id
+        string name
+        int desk_height_mm
+    }
+
+    HealthReminder }o--|| DeskProfile : uses
+    HealthReminder |o--|| DeskSession : uses
+    HealthReminder }o--|| Timer : uses
+    HealthReminder {
+        string id
+        string desk_session_id
+        timestamp started_at
+        duration time_elapsed_before_pause
+        bool is_paused
+        bool is_away_paused
+        bool is_user_paused
+        string next_reminder_timer_id
+        string next_desk_profile_id
+        string automatic_warning_timer_id
+        bool is_automatic
+    }
+
+    HealthReminderPreferences }o--|| DeskProfile : uses
+    HealthReminderPreferences ||--|| User : uses
+    HealthReminderPreferences ||--o| HealthReminder : configures
+    HealthReminderPreferences {
+        string id
+        string user_id
+        duration sitting_duration
+        string main_sitting_desk_profile_id
+        duration standing_duration
+        string main_standing_desk_profile_id
+        duration warning_duration
+        bool is_automatic
+        int middle_desk_height_threshold_mm
+    }
+
+    DeskIssue }o--|| Desk : uses
+    DeskIssue }o--o| User : uses
+    DeskIssue {
+        string id
+        string desk_id
+        string? reporter_user_id
+        timestamp created_at
+        timestamp resolved_at
+        string severity
+        int? error_code
+        string? title
+        string? description
+    }
+
+    PicoEnvironmentalData }o--|| Desk : uses
+    PicoEnvironmentalData {
+        string id
+        string desk_id
+        timestamp timestamp
+        float temperature_celsius
+        float humidity
+        float light
+    }
+
+    LastDeskAPIFetch |o--|| Desk : uses
+    LastDeskAPIFetch ||--o{ RealtimeDeskAPIData : configures
+    LastDeskAPIFetch ||--o{ PeriodicDeskAPIData : configures
+    LastDeskAPIFetch }o--|| Timer : uses
+    LastDeskAPIFetch {
+        string id
+        string desk_id
+        string next_realtime_desk_fetch_timer_id
+        string next_periodic_desk_fetch_timer_id
+        int desk_last_fetched_error_time_s
+    }
+
+    RealtimeDeskAPIData }o--|| Desk : uses
+    RealtimeDeskAPIData {
+        string id
+        string desk_id
+        timestamp timestamp
+        int desk_height_mm
+        int speed_mms
+    }
+
+    PeriodicDeskAPIData }o--|| Desk : uses
+    PeriodicDeskAPIData {
+        string id
+        string desk_id
+        string device_name
+        string manufacturer
+        string status
+        bool is_position_lost
+        bool is_overload_protection_up
+        bool is_overload_protection_down
+        bool is_anti_collision
+    }
+
+    FrontendTelemetry {
+        string id
+        timestamp occured_at
+        timestamp received_at
+        string error_message
+        string? stack_trace
+        string? source
+        string url
+        string user_agent
+        string[]? context
+        string? client_host
+        string? request_id
+    }
+
+    Timer {
+        string id
+        timestamp trigger_timestamp
+    }
+
+    Statistics ||--o{ RealtimeDeskAPIData : uses
+    Statistics ||--o{ DeskSession : uses
+    Statistics ||--o{ PicoEnvironmentalData : uses
+    Statistics ||--o{ DeskIssue : uses
+    Statistics {
+    }
+
+    OfficeMap ||--o{ Desk : uses
+    OfficeMap ||--o{ DeskSession : uses
+    OfficeMap ||--o{ PicoEnvironmentalData : uses
+    OfficeMap ||--o{ DeskIssue : uses
+    OfficeMap {
+        Layer[] layers
+        string layers.id
+        string layers.name
+        Bounds layers.bounds
+        Rectangle[] layers.rectangles
+        string layers.rectangles.id
+        Vector2 layers.rectangles.position
+        Vector2 layers.rectangles.size
+        float layers.rectangles.rotation
+        string layers.rectangles.desk_id
+    }
+
+    PicoPeripherals ||--o{ DeskSession : uses
+    PicoPeripherals ||--o{ HealthReminder : uses
+    PicoPeripherals {
+    }
