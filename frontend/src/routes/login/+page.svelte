@@ -41,7 +41,7 @@
             }
 
             console.log('Login successful', data)
-
+            
             if (mode === 'admin') {
                 await goto('/admin/dashboard');
             }

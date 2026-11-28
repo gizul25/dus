@@ -3,8 +3,41 @@ import app.desk_reminder as desk_reminder
 import app.routers.desk as desk_router
 from app.desk_tracking import DeskTracker
 
+import os
+from argon2 import PasswordHasher
+from pymongo import MongoClient
+
+@pytest.fixture
+def db():
+    with MongoClient(os.environ["MONGODB_URL"]) as mongo:
+        yield mongo["testdb"]
+
+@pytest.fixture
+def test_user(db):
+    password = "test123"
+    user = {
+        "_id": "test-admin",
+        "first_name": "Testing",
+        "last_name": "Admin",
+        "email": "admin@example.com",
+        "password": PasswordHasher().hash(password),
+        "role": "user",
+        "desk_id": "D-42",
+    }
+    db["users"].insert_one(user)
+    return user
+
 @pytest.mark.anyio
-async def test_reminder_when_timer_expires(client, monkeypatch):
+async def test_login_as_user(client, test_user):
+    response = await client.post(
+        "/auth/login",
+        json={"email": "admin@example.com", "password": "test123", "mode": "user",  "desk_id": "D-42"},
+    )
+    assert response.status_code == 200
+
+@pytest.mark.anyio
+async def test_reminder_when_timer_expires(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
     monkeypatch.setattr(desk_reminder, "ordinary_reminder_active", False)
     monkeypatch.setattr(desk_reminder, "forced_standup_active", False)
@@ -49,7 +82,8 @@ async def test_reminder_when_timer_expires(client, monkeypatch):
     assert desk_reminder.ordinary_reminder_active == True
 
 @pytest.mark.anyio
-async def test_duplicate_reminder_prevention(client, monkeypatch):
+async def test_duplicate_reminder_prevention(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
     monkeypatch.setattr(desk_reminder, "ordinary_reminder_active", False)
     monkeypatch.setattr(desk_reminder, "forced_standup_active", False)
@@ -107,7 +141,8 @@ async def test_duplicate_reminder_prevention(client, monkeypatch):
     assert desk_reminder.ordinary_reminder_active == True
 
 @pytest.mark.anyio
-async def test_forced_standing_cannot_be_dismissed(client, monkeypatch):
+async def test_forced_standing_cannot_be_dismissed(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
     monkeypatch.setattr(desk_reminder, "ordinary_reminder_active", False)
     monkeypatch.setattr(desk_reminder, "forced_standup_active", False)
@@ -158,7 +193,8 @@ async def test_forced_standing_cannot_be_dismissed(client, monkeypatch):
     assert desk_reminder.forced_standup_active == True
 
 @pytest.mark.anyio
-async def test_confirmed_standing_clear_reminder(client, monkeypatch):
+async def test_confirmed_standing_clear_reminder(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
     monkeypatch.setattr(desk_reminder, "ordinary_reminder_active", False)
     monkeypatch.setattr(desk_reminder, "forced_standup_active", False)
@@ -225,7 +261,8 @@ async def test_confirmed_standing_clear_reminder(client, monkeypatch):
     assert desk_reminder.forced_standup_active == False
 
 @pytest.mark.anyio
-async def test_reminders_disabled(client, monkeypatch):
+async def test_reminders_disabled(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
     monkeypatch.setattr(desk_reminder, "ordinary_reminder_active", False)
     monkeypatch.setattr(desk_reminder, "forced_standup_active", False)
@@ -275,7 +312,8 @@ async def test_reminders_disabled(client, monkeypatch):
     assert desk_reminder.ordinary_reminder_active == False
 
 @pytest.mark.anyio
-async def test_invalid_height_reading(client, monkeypatch):
+async def test_invalid_height_reading(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
 
     readings = await client.post(
@@ -287,7 +325,8 @@ async def test_invalid_height_reading(client, monkeypatch):
     assert readings.status_code == 422
 
 @pytest.mark.anyio
-async def test_out_of_order_timestamps(client, monkeypatch):
+async def test_out_of_order_timestamps(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
 
     readings = await client.post(
@@ -311,7 +350,8 @@ async def test_out_of_order_timestamps(client, monkeypatch):
     assert len(desk_router.tracker.measurements.list()) == 1
 
 @pytest.mark.anyio
-async def test_dismissal_blocked_during_forced_standing(client, monkeypatch):
+async def test_dismissal_blocked_during_forced_standing(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
     monkeypatch.setattr(desk_reminder, "forced_standup_active", False)
     monkeypatch.setattr(desk_reminder, "ordinary_reminder_active", False)
@@ -362,7 +402,8 @@ async def test_dismissal_blocked_during_forced_standing(client, monkeypatch):
     assert desk_reminder.ordinary_reminder_active == True
 
 @pytest.mark.anyio
-async def test_reminder_at_exact_time(client, monkeypatch):
+async def test_reminder_at_exact_time(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
 
     response = await client.put(
@@ -408,7 +449,8 @@ async def test_reminder_at_exact_time(client, monkeypatch):
     assert readings_after1.json()["reminder_due"] == True
 
 @pytest.mark.anyio
-async def test_exact_standing_height_threshold(client, monkeypatch):
+async def test_exact_standing_height_threshold(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
     monkeypatch.setattr(desk_reminder, "ordinary_reminder_active", False)
     monkeypatch.setattr(desk_reminder, "forced_standup_active", False)
@@ -473,7 +515,8 @@ async def test_exact_standing_height_threshold(client, monkeypatch):
     assert readings_after2.json()["position"] == "standing"
 
 @pytest.mark.anyio
-async def test_exact_position_confirm_time(client, monkeypatch):
+async def test_exact_position_confirm_time(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
     monkeypatch.setattr(desk_reminder, "ordinary_reminder_active", False)
     monkeypatch.setattr(desk_reminder, "forced_standup_active", False)
@@ -547,7 +590,8 @@ async def test_exact_position_confirm_time(client, monkeypatch):
     assert desk_reminder.forced_standup_active == False
 
 @pytest.mark.anyio
-async def test_preferences_changed_during_reminder(client, monkeypatch):
+async def test_preferences_changed_during_reminder(client, monkeypatch, test_user):
+    await test_login_as_user(client, test_user)
     monkeypatch.setattr(desk_router, "tracker", DeskTracker())
     monkeypatch.setattr(desk_reminder, "ordinary_reminder_active", False)
     monkeypatch.setattr(desk_reminder, "forced_standup_active", False)

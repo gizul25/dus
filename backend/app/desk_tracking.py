@@ -81,6 +81,10 @@ class TimerProfileRegistry:
 class HeightReading(BaseModel):
     height_cm: float = Field(gt=0, le=200)
     recorded_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    desk_id: str | None = None
+    temperature_c: float | None = None
+    humidity_pct: float | None = None
+    light: float | None = None
 
     @field_validator("recorded_at")
     @classmethod
