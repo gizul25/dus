@@ -81,6 +81,10 @@ async def process_server_messages():
 
 ws_app = FastAPI(lifespan=lifespan)
 
+@ws_app.get("/healthz")
+async def healthcheck():
+    return {"status": "ok"}
+
 @ws_app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()

@@ -67,6 +67,18 @@ def get_saved_preferences(request: Request):
         preferences = ReminderPreferences.model_validate(saved_preferences)
     return preferences
 
+def persist_reminder_state(request: Request):
+    request.app.db["desk_state"].update_one(
+        {"_id": "active"},
+        {
+            "$set": {
+                "ordinary_reminder_active": ordinary_reminder_active,
+                "forced_standup_active": forced_standup_active,
+            }
+        },
+        upsert=True,
+    )
+
 def enable_reminder(enable: list):
     global ordinary_reminder_active
     if enable:
@@ -80,21 +92,25 @@ def mock_timer(request: Request):
     timer_end = reminder_functionality(preferences)
     if timer_end:
         ordinary_reminder_active = True
+        persist_reminder_state(request)
     return timer_end
 
 @reminder.post("/mock_timer_timeout_optional_standup/")
 def mock_timer_optional_standup(request: Request):
     preferences = get_saved_preferences(request)
     timer_end = is_forced_standup_reminder(preferences)
+    persist_reminder_state(request)
     return timer_end
 
 @reminder.post("/mock_height/")
-async def mock_height(height: int):
+async def mock_height(height: int, request: Request):
     min_height = 95
     height = check_height(height, min_height)
+    persist_reminder_state(request)
     return height
 
 @reminder.post("/dismissed_reminder/")
-async def dismissed_reminder():
+async def dismissed_reminder(request: Request):
     result = dismiss_reminder()
+    persist_reminder_state(request)
     return result

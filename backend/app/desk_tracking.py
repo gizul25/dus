@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from enum import StrEnum
+from typing import Any
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -77,6 +78,26 @@ class TimerProfileRegistry:
             self.active_profile_id = profile_id
         return profile
 
+    def snapshot(self) -> dict[str, Any]:
+        return {
+            "active_profile_id": self.active_profile_id,
+            "profiles": [
+                profile.model_dump(mode="json")
+                for profile in self._profiles.values()
+            ],
+        }
+
+    def restore_snapshot(self, snapshot: dict[str, Any]) -> None:
+        profiles = [
+            NamedTimerProfile.model_validate(profile)
+            for profile in snapshot["profiles"]
+        ]
+        self._profiles = {profile.profile_id: profile for profile in profiles}
+        active_profile_id = snapshot["active_profile_id"]
+        if "default" not in self._profiles or active_profile_id not in self._profiles:
+            raise ValueError("Invalid persisted timer profile registry")
+        self.active_profile_id = active_profile_id
+
 
 class HeightReading(BaseModel):
     height_cm: float = Field(gt=0, le=200)
@@ -131,7 +152,6 @@ class SittingPeriodRepository:
 
 
 class DeskStatus(BaseModel):
-    id: str
     height_cm: float | None
     position: DeskPosition | None
     sitting_seconds: float
@@ -141,80 +161,6 @@ class DeskStatus(BaseModel):
     timer_overdue: bool
     reminder_due: bool
     last_reading_at: datetime | None
-    current_user_id: str | None
-
-
-class DeskStatusRepository:
-    def __init__(self):
-        self._statuses: dict[str, DeskStatus] = {}
-
-    def create(self, status: DeskStatus) -> bool:
-        if status.id in self._statuses:
-            return False
-        self._statuses[status.id] = status
-        return True
-    
-    def get(self, id: str) -> DeskStatus | None:
-        if not id in self._statuses:
-            return None
-        return self._statuses[id]
-
-    def update(self, status: DeskStatus) -> bool:
-        if not status.id in self._statuses:
-            return False
-        self._statuses[status.id] = status
-        return True
-    
-    def delete(self, id: str) -> bool:
-        if not id in self._statuses:
-            return False
-        del self._statuses[id]
-        return True
-
-    def list(self, limit: int | None = None) -> list[DeskStatus]:
-        items = list(self._statuses)
-        if limit is not None:
-            return items[-limit:]
-        return items
-
-
-class UserStatus(BaseModel):
-    id: str
-    current_desk_id: str | None
-
-
-class UserStatusRepository:
-    def __init__(self):
-        self._statuses: dict[str, UserStatus] = {}
-
-    def create(self, status: UserStatus) -> bool:
-        if status.id in self._statuses:
-            return False
-        self._statuses[status.id] = status
-        return True
-    
-    def get(self, id: str) -> UserStatus | None:
-        if not id in self._statuses:
-            return None
-        return self._statuses[id]
-
-    def update(self, status: UserStatus) -> bool:
-        if not status.id in self._statuses:
-            return False
-        self._statuses[status.id] = status
-        return True
-    
-    def delete(self, id: str) -> bool:
-        if not id in self._statuses:
-            return False
-        del self._statuses[id]
-        return True
-
-    def list(self, limit: int | None = None) -> list[UserStatus]:
-        items = list(self._statuses)
-        if limit is not None:
-            return items[-limit:]
-        return items
 
 
 class DeskTracker:
@@ -233,10 +179,76 @@ class DeskTracker:
         self.pending_position_since: datetime | None = None
         self.reminder_triggered = False
         self.current_period: SittingPeriod | None = None
-        self.current_user_id = None
 
     def update_profile(self, profile: TimerProfile) -> None:
         self.profile = profile
+
+    def snapshot(self) -> dict[str, Any]:
+        return {
+            "profile": self.profile.model_dump(mode="json"),
+            "height_cm": self.height_cm,
+            "position": self.position.value if self.position is not None else None,
+            "sitting_seconds": self.sitting_seconds,
+            "standing_seconds": self.standing_seconds,
+            "position_seconds": self.position_seconds,
+            "last_reading_at": (
+                self.last_reading_at.isoformat()
+                if self.last_reading_at is not None
+                else None
+            ),
+            "pending_position": (
+                self.pending_position.value
+                if self.pending_position is not None
+                else None
+            ),
+            "pending_position_since": (
+                self.pending_position_since.isoformat()
+                if self.pending_position_since is not None
+                else None
+            ),
+            "reminder_triggered": self.reminder_triggered,
+            "current_period": (
+                self.current_period.model_dump(mode="json")
+                if self.current_period is not None
+                else None
+            ),
+        }
+
+    def restore_snapshot(self, snapshot: dict[str, Any]) -> None:
+        self.profile = TimerProfile.model_validate(snapshot["profile"])
+        self.height_cm = snapshot["height_cm"]
+        self.position = (
+            DeskPosition(snapshot["position"])
+            if snapshot["position"] is not None
+            else None
+        )
+        self.sitting_seconds = float(snapshot["sitting_seconds"])
+        self.standing_seconds = float(snapshot["standing_seconds"])
+        self.position_seconds = float(snapshot["position_seconds"])
+        self.last_reading_at = self._normalize_snapshot_timestamp(
+            snapshot["last_reading_at"]
+        )
+        self.pending_position = (
+            DeskPosition(snapshot["pending_position"])
+            if snapshot["pending_position"] is not None
+            else None
+        )
+        self.pending_position_since = self._normalize_snapshot_timestamp(
+            snapshot["pending_position_since"]
+        )
+        self.reminder_triggered = bool(snapshot["reminder_triggered"])
+        current_period = snapshot["current_period"]
+        self.current_period = (
+            SittingPeriod.model_validate(current_period)
+            if current_period is not None
+            else None
+        )
+
+    @staticmethod
+    def _normalize_snapshot_timestamp(value: Any) -> datetime | None:
+        if value is None:
+            return None
+        return HeightReading(height_cm=1, recorded_at=value).recorded_at
 
     def record(self, reading: HeightReading) -> DeskStatus:
         if self.last_reading_at is not None:
@@ -295,7 +307,6 @@ class DeskTracker:
             reminder_due = False
 
         return DeskStatus(
-            id="temporary",
             height_cm=self.height_cm,
             position=self.position,
             sitting_seconds=self.sitting_seconds,
@@ -305,7 +316,6 @@ class DeskTracker:
             timer_overdue=(target_seconds is not None and self.position_seconds >= target_seconds),
             reminder_due=reminder_due,
             last_reading_at=self.last_reading_at,
-            current_user_id=self.current_user_id,
         )
 
     def _commit_position_change(self, new_position: DeskPosition, timestamp: datetime) -> None:
@@ -343,5 +353,3 @@ class DeskTracker:
         if height_cm >= self.profile.standing_min_height_cm:
             return DeskPosition.STANDING
         return None
-
-

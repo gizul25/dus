@@ -13,11 +13,16 @@ docker compose up --build
 
 Relaunch `docker compose` if `docker-compose.yaml`, `nginx.conf`, `Dockerfile`s or other core infra files were changed. Changing Svelte in frontend and Python files in backend should automatically update them live with HMR (hot-module reloading). Websocket only reloads when files inside `ws/` folder change.
 
-Currently MongoDB and Kafka have no persistence.
+For the Minikube Kubernetes deployment, see the [Kubernetes setup guide](docs/kubernetes.md).
+
+MongoDB, Kafka, and Mosquitto data are stored in named Docker volumes, so they persist
+across container recreation. Use `docker compose down -v` only when you intend
+to remove that data.
 
 Server URIs:
 - Nginx (w/ frontend + backend): http://localhost:8080/
 - MongoDB: `mongodb://root:password@localhost:27017/`
+- MQTT: `mqtt://localhost:1883` (development only; anonymous access)
 - Raw frontend: http://localhost:5173/
 - Backend: http://localhost:8000/
 
@@ -47,7 +52,9 @@ If any commands in Docker complain about missing env vars, such as `SHELL`, insi
 sudo su user
 ```
 
-Container starting order is not enforced, so fallback, timeouts and retries for connecting to other services are important.
+Compose waits for MongoDB and Kafka health checks before starting the backend
+and WebSocket service, and waits for the application health checks before
+starting Nginx. Services still need to handle transient connection failures.
 
 ## Backend
 
