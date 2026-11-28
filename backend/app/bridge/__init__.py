@@ -1,29 +1,11 @@
-import ssl
-from contextlib import asynccontextmanager
-
-from ssl import SSLContext
-from os import path
+import asyncio
 from fastapi import FastAPI
-from fastapi_mqtt.config import MQTTConfig 
-from fastapi_mqtt.fastmqtt import FastMQTT
+from contextlib import asynccontextmanager
+from .mqtt_kafka_bridge import Bridge, SensorReading
+
 
 cert_path = "app/bridge/certs/dus.test.com"
 
-ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-
-ssl_context.load_cert_chain(certfile=path.relpath(path.join(cert_path,'client.crt')),
-                                                    keyfile=path.relpath(path.join(cert_path,'client.key')))
-ssl_context.check_hostname = False
-
-
-mqtt_config = MQTTConfig(
-        host = "dus.test.com",
-        port = 8883,
-        ssl= ssl_context,
-        keepalive=300,)
-
-
-fast_mqtt = FastMQTT(config=mqtt_config)
 
 @asynccontextmanager
 async def _lifespan(_app: FastAPI):
@@ -32,6 +14,12 @@ async def _lifespan(_app: FastAPI):
     await fast_mqtt.mqtt_shutdown()
 
 bridge_app = FastAPI(lifespan=_lifespan)
+
+loop = asyncio.get_event_loop()
+
+bridge = Bridge(cert_path, loop)
+
+fast_mqtt = bridge.mqtt
 
 @fast_mqtt.on_connect()
 def connect(client, flags, rc, properties):
