@@ -41,7 +41,7 @@
             <p role="alert">{checkoutError}</p>
         {/if}
     {:else}
-        <p>No desk assigned. Tap your card at an available desk to check in.</p>
+        <p>No desk assigned.</p>
     {/if}
     <h2 class="text-lg font-semibold">Desk availability</h2>
     <ul>
